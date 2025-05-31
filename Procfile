@@ -1,1 +1,1 @@
-web: gunicorn niqichik.wsgi
+web: gunicorn Niqichik.wsgi
