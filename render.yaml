@@ -3,7 +3,7 @@ services:
     name: niqichik-app
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn Niqichik.wsgi
+    startCommand: gunicorn niqichik.wsgi
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: Niqichik.settings
