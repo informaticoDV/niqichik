@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # necesario para allauth
+    'django.contrib.humanize',  # 👈 agrega esta línea
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -81,12 +82,15 @@ WSGI_APPLICATION = 'Niqichik.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+import dj_database_url
+from decouple import config, Csv
 
+# Por defecto, usa SQLite en local
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'tienda.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600
+    )
 }
 
 

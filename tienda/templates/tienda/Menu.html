@@ -102,11 +102,25 @@
     }
     .titulo-scriptify {
   font-family: 'Great Vibes', cursive;
-  font-size: 36px;
+  font-size: 40px;
   color: #880e4f;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 12px;
 }
+    .titulo-scriptifyMini {
+  font-family: 'Great Vibes', cursive;
+  font-size: 30px;
+  color: #880e4f;
+  text-align: center;
+  margin-top: 0px;
+}
+.titulo-scriptify2{
+  font-family: Arial, sans-serif;
+  font-size: 25px;
+  color: #880e4f;
+  text-align: left;
+  margin-top: 0px;
+  }
     .contenido {
   padding-left: 5px; /* Menos espacio en pantallas pequeñas */
 }
@@ -117,35 +131,13 @@
     padding-left: 30px;  /* puedes ajustar este valor */
   }
 }
-.menu-izquierdo {
-  display: none; /* Oculto por defecto en móvil */
-  height: 100vh;
-  width: 250px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: #f8c8dc; /* mismo color rosado */
-  z-index: 999;
-}
-
-@media (min-width: 768px) {
-  .menu-izquierdo {
-    display: block; /* Mostrar solo en pantallas grandes */
-  }
-
-  .contenido {
-    margin-left: 250px;  /* espacio para el menú izquierdo */
-    margin-right: 250px; /* espacio para el menú derecho */
-    padding-left: 30px;
-  }
-}
 
   </style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Tienda Chik</title>
-  <link rel="icon" href="static/media/LogoSimple.png" type="image/x-icon">
+  <link rel="icon" href="../../media/Productos/LogoSimple.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
@@ -158,17 +150,11 @@
 
 <div class="menu-izquierdo"></div>
   <nav>
-
-    <div class="container">
   <div class="row">
     <div class="col-10 col-sm-6 col-md-4 mb-12"> <!-- Responsive: 1 columna en móviles, 2 en tablets, 4 en PC -->
-
-    <h1 class="titulo-scriptify"><img src="../../media/Productos/LogoSimple.png" alt="Logo Niqi-Chik" class="logo-img"> <br>Niqi-Chik - Accesorios y más</h1>
+      <h1 class="titulo-scriptify"><img src="../../media/Productos/LogoSimple.png" alt="Logo Niqi-Chik" class="logo-img"><br>Niqi-Chik </h1>
+      <h1 class="titulo-scriptifyMini"> Accesorios y más</h1>
       </div>
-    </div>
-
-
-
   </nav>
 <!-- Botón hamburguesa -->
 <button class="btn-menu" onclick="toggleMenu()">☰</button>
@@ -193,19 +179,16 @@
 
 
 </div>
-
 <!-- Script JavaScript -->
 <script>
   function toggleMenu() {
     const menu = document.getElementById("menuDerecho");
     menu.classList.toggle("abierto");
   }
-
   function filtrar() {
     const input = document.getElementById("buscador").value.toLowerCase();
     const links = document.querySelectorAll("#links a");
     let hayResultados = false;
-
     links.forEach(link => {
       if (link.textContent.toLowerCase().includes(input)) {
         link.style.display = "block";
@@ -214,13 +197,10 @@
         link.style.display = "none";
       }
     });
-
     document.getElementById("sinResultados").style.display = hayResultados ? "none" : "block";
   }
 </script>
-
 </body>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 <script src="../../static/js/eventosJS.js"></script>
 <script src="../../static/js/carousel.js"></script>
