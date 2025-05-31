@@ -1,0 +1,99 @@
+{% include "barra.html" %}
+{% load static %}
+<html>
+<body>
+
+<table align="center">
+ <br>
+ <td><h4 class="text-white" align="center">Publicaciones</h4>
+ <br></td>
+ <tr>
+ </table>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+    <br>
+        <div class="card" style="width: 20rem;">
+        <div class="thumbnail-container">
+    <a href="../static/media/{{x.imagen}}" target="_blank" rel="noopener noreferrer">
+        <img src="../static/media/{{x.imagen}}" class="thumbnail" alt="...">
+    </a>
+</div>
+            <div class="card-body">
+<div class="container" align="center">
+  <div class="row">
+    <div class="col-md-7">
+        {% if x.estado == '0'%}
+        <div class="spinner-grow spinner-grow-sm text-success"></div>
+        <t class="text-success">Libre</t>
+        {% endif%}
+        {% if x.estado == '1'%}
+        <div class="spinner-grow spinner-grow-sm text-warning"></div>
+        <t class="text-warning">Negociación</t>
+        {% endif%}
+        {% if x.estado == '2'%}
+        <div class="spinner-grow spinner-grow-sm text-warning"></div>
+        <t class="text-warning">Trabajando</t>
+        {% endif%}
+        {% if x.estado == '3'%}
+        <div class="spinner-grow spinner-grow-sm text-primary"></div>
+        <t class="text-primary">Finalizada</t>
+        {% endif%}
+        <h5 class="card-title">{{x.nombre}}</h5>
+  </div>
+    <div class="col-md-5" >
+    {% if x.estado == '0'%}
+    <form action="{% url 'InformacionTarea' %}" name="formulario" method="POST">{% csrf_token %}
+        <td align="center"><button type="submit" name="submit" value="{{x.id}}" class="btn btn-info" style="font-size: 12px; width: 6rem;">Publicación</button></td>
+    </form>
+    <form action="/eliminarTarea/{{x.id}}" method="POST">{% csrf_token %}
+        <td align="center">
+        <button type="submit" class="btn btn-danger btnEliminacion" style="font-size: 12px; width: 6rem;">Eliminar</button>
+        </td>
+    </form>
+    {% endif%}
+    {% if x.estado == '1' %}
+    {% for a in MisTareasAsignadas %}
+        {% if a.id == x.id %}
+            <form action="{% url 'Contrato' %}" name="formulario" method="POST">
+                {% csrf_token %}
+                <td align="center"><button type="submit" name="submit" value="{{x.id}}" class="btn btn-primary" class="btn btn-outline-light" style="font-size: 12px; width: 6rem;">Continuar</button></td>
+                </form>
+        {% endif%}
+    {% endfor %}
+    {% endif%}
+    {% if x.estado == '2' %}
+        <form action="{% url 'Contrato' %}" name="formulario" method="POST">
+            {% csrf_token %}
+            <td align="center"><button type="submit" name="submit" value="{{x.id}}" class="btn btn-primary" class="btn btn-outline-light" style="font-size: 12px; width: 6rem;">Contrato</button></td>
+        </form>
+        <form action="{% url 'Transferir' %}" name="formulario" method="POST">
+            {% csrf_token %}
+            <button type="submit" name="CompletarTarea" value="{{x.id}}" class="btn btn-success btnAsignar" style="font-size: 12px; width: 6rem;">Pagar</button>
+        </form>
+    {% endif%}
+    {% if x.estado == '3' %}
+        <form action="{% url 'Contrato' %}" name="formulario" method="POST">
+            {% csrf_token %}
+            <td align="center"><button type="submit" name="submit" value="{{x.id}}" class="btn btn-primary" class="btn btn-outline-light" style="font-size: 12px; width: 6rem;">Contrato</button></td>
+        </form>
+    {% endif%}
+    </div>
+  </div>
+  </div>
+            </div>
+        <ul class="list-group list-group-flush">
+        <i class="list-group-item bi bi-geo-alt" style="font-size: smaller;"> {{x.FK_Region.nombre}}</i>
+        <i class="list-group-item bi bi-calendar3" style="font-size: smaller;"> {{x.fecha.date}}</i>
+        <i class="list-group-item bi bi-clock" style="font-size: smaller;"> {{x.fecha.time}}</i>
+        </ul>
+        </div>
+    <br>
+    </div>
+</div>
+{% endif %}
+{% include "Footer.html" %}
+</body>
+<script src="../../static/js/eventosJS.js"></script>
+</html>

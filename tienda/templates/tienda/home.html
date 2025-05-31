@@ -1,0 +1,113 @@
+{% include "tienda/Menu.html" %}
+{% load static %}
+
+<body>
+  <br>
+  <div class="container">
+    <form method="GET" class="mb-4">
+      <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Buscar productos..." value="{{ request.GET.q }}">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </form>
+
+    <div class="row justify-content-center">
+      {% for producto in productos %}
+      <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
+        <div class="card h-100 shadow-sm">
+          <!-- Imagen centrada y redimensionada -->
+          <img src="{{ producto.imagen.url }}"
+           class="card-img-top img-fluid p-2 img-clickable"
+           alt="{{ producto.nombre }}"
+           style="object-fit: contain; height: 200px; cursor: pointer;"
+           data-bs-toggle="modal"
+           data-bs-target="#imagenModal"
+           data-img-url="{{ producto.imagen.url }}">
+
+          <div class="card-body text-center">
+            <h5 class="card-title">{{ producto.nombre }}</h5>
+          </div>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <i class="bi bi-cash"></i> <strong>${{ producto.precio }}</strong>
+            </li>
+            <li class="list-group-item">
+              <i class="bi bi-card-text"></i> {{ producto.descripcion }}
+            </li>
+            <li class="list-group-item">
+              {% if not producto.estado %}
+                <div class="d-flex align-items-center justify-content-center text-danger">
+                  <div class="spinner-grow spinner-grow-sm me-2"></div> Agotado
+                </div>
+              {% else %}
+                <div class="d-flex align-items-center justify-content-center text-success">
+                  <div class="spinner-grow spinner-grow-sm me-2"></div> Disponible
+                </div>
+              {% endif %}
+            </li>
+
+    {% if user.is_authenticated %}
+            <li class="list-group-item" align="center">
+              {% if not producto.estado %}
+                <form method="POST" action="{% url 'marcar_disponible' producto.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-success btn-sm">Marcar Disponible</button>
+              </form>
+              {% else %}
+                <form method="POST" action="{% url 'marcar_agotado' producto.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-warning btn-sm">Marcar Agotado</button>
+              </form>
+              {% endif %}
+
+
+            <li class="list-group-item" align="center">
+             <form method="POST" action="{% url 'eliminar_producto' producto.id %}">
+                {% csrf_token %}
+              <button class="btn btn-outline-danger btn-sm me-2">Eliminar</button>
+              </form>
+            </li>
+
+            <li class="list-group-item" align="center">
+             <form method="POST" action="{% url 'editar_producto' producto.id %}">
+                {% csrf_token %}
+              <button class="btn btn-outline-warning btn-sm me-2">Editar</button>
+              </form>
+            </li>
+
+    {% endif %}
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  </div>
+
+  {% include "tienda/Footer.html" %}
+<div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-body p-0">
+        <img id="imagenModalSrc" src="" class="img-fluid w-100 rounded" alt="Imagen ampliada">
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const imagenModal = document.getElementById('imagenModal');
+  const imagenModalSrc = document.getElementById('imagenModalSrc');
+
+  imagenModal.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    const url = trigger.getAttribute('data-img-url');
+    imagenModalSrc.src = url;
+  });
+</script>
+</body>

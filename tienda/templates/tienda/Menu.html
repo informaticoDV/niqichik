@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Menú - Niqi-Chik</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: white;
+    }
+
+    .contenido {
+      padding: 20px;
+      transition: margin-right 0.3s;
+    }
+
+    .menu-derecho {
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      right: -250px;
+      background-color: #f8c8dc; /* fondo nuevo */
+      color: #880e4f; /* texto nuevo */
+      padding: 20px;
+      transition: right 0.3s;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    .menu-derecho.abierto {
+      right: 0;
+    }
+
+    .menu-derecho h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #880e4f;
+    }
+
+    .menu-derecho input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #880e4f;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      color: #880e4f;
+      background-color: #f5e1fa;
+    }
+
+    .menu-derecho a {
+      display: block;
+      padding: 12px 20px;
+      color: #880e4f;
+      text-decoration: none;
+      transition: background 0.3s;
+      border-radius: 5px;
+    }
+
+    .menu-derecho a:hover {
+      background-color: #e7c3f6;
+    }
+
+    .resultado {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #880e4f;
+    }
+    .btn-menu {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #f8c8dc;
+      color: #880e4f;
+      border: 2px solid #880e4f;
+      padding: 10px 15px;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 1100;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    @media (min-width: 768px) {
+      .btn-menu {
+        display: none;
+      }
+
+      .menu-derecho {
+        right: 0;
+      }
+
+      .contenido {
+        margin-right: 250px;
+      }
+    }
+    .titulo-scriptify {
+  font-family: 'Great Vibes', cursive;
+  font-size: 36px;
+  color: #880e4f;
+  text-align: center;
+  margin-top: 20px;
+}
+    .contenido {
+  padding-left: 5px; /* Menos espacio en pantallas pequeñas */
+}
+
+@media (min-width: 768px) {
+  .contenido {
+    margin-right: 250px; /* mantener espacio del menú derecho en escritorio */
+    padding-left: 30px;  /* puedes ajustar este valor */
+  }
+}
+.menu-izquierdo {
+  display: none; /* Oculto por defecto en móvil */
+  height: 100vh;
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #f8c8dc; /* mismo color rosado */
+  z-index: 999;
+}
+
+@media (min-width: 768px) {
+  .menu-izquierdo {
+    display: block; /* Mostrar solo en pantallas grandes */
+  }
+
+  .contenido {
+    margin-left: 250px;  /* espacio para el menú izquierdo */
+    margin-right: 250px; /* espacio para el menú derecho */
+    padding-left: 30px;
+  }
+}
+
+  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Tienda Chik</title>
+  <link rel="icon" href="static/media/LogoSimple.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link href="../../static/css/carousel.css" type="text/css">
+  <link href="../../static/css/button.css" type="text/css">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="menu-izquierdo">
+  <!-- Aquí puedes poner lo que quieras o dejarlo como franja decorativa -->
+</div>
+
+<div class="menu-izquierdo"></div>
+  <nav>
+
+    <div class="container">
+  <div class="row">
+    <div class="col-10 col-sm-6 col-md-4 mb-12"> <!-- Responsive: 1 columna en móviles, 2 en tablets, 4 en PC -->
+
+    <h1 class="titulo-scriptify"><img src="/static/media/LogoSimple.png" alt="Logo Niqi-Chik" class="logo-img"> <br>Niqi-Chik - Accesorios y más</h1>
+
+      </div>
+    </div>
+
+
+
+  </nav>
+<!-- Botón hamburguesa -->
+<button class="btn-menu" onclick="toggleMenu()">☰</button>
+<!-- Menú lateral derecho -->
+<div class="menu-derecho" id="menuDerecho">
+  <h2>Menú</h2>
+    <!--<a href="{% url 'home' %}">Inicio</a>-->
+    <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <!-- Tus campos aquí -->
+
+    {% if user.is_authenticated %}
+    <a href="{% url 'agregar_producto' %}">Agregar producto</a>
+
+    <a href="{% url 'tienda' %}">Mi Tienda</a>
+    <a href="{% url 'logout' %}">Cerrar sesión</a>
+    {% else %}
+    <a href="{% url 'login' %}">Iniciar Sesión</a>
+    {% endif %}
+    </form>
+
+
+
+</div>
+
+<!-- Script JavaScript -->
+<script>
+  function toggleMenu() {
+    const menu = document.getElementById("menuDerecho");
+    menu.classList.toggle("abierto");
+  }
+
+  function filtrar() {
+    const input = document.getElementById("buscador").value.toLowerCase();
+    const links = document.querySelectorAll("#links a");
+    let hayResultados = false;
+
+    links.forEach(link => {
+      if (link.textContent.toLowerCase().includes(input)) {
+        link.style.display = "block";
+        hayResultados = true;
+      } else {
+        link.style.display = "none";
+      }
+    });
+
+    document.getElementById("sinResultados").style.display = hayResultados ? "none" : "block";
+  }
+</script>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+<script src="../../static/js/eventosJS.js"></script>
+<script src="../../static/js/carousel.js"></script>
+<script src="../../static/js/button.js"></script>
+</html>
