@@ -16,6 +16,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -24,10 +25,11 @@ from decouple import config
 
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -146,17 +148,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-from decouple import config
-import dj_database_url
 
-SECRET_KEY = config('DJANGO_SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
-
-DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
-}
 
 
 # Default primary key field type
