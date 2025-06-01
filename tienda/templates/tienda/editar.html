@@ -2,9 +2,9 @@
 {% load static %}
 {% load widget_tweaks %}
 
-<div class="container mt-5">
-  <h2 class="mb-4">{{ producto.nombre|default:"Nuevo Producto" }}</h2>
-
+<div class="contenido">
+<div class="container mt-12">
+  <h1 class="titulo-scriptify2"> Editando producto "{{ producto.nombre }}"</h1>
   <form method="POST" enctype="multipart/form-data" class="card p-4 shadow">
     {% csrf_token %}
 
@@ -24,6 +24,7 @@
       <button type="submit" class="btn btn-success">Guardar</button>
     </div>
   </form>
+</div>
 </div>
 
 {% include "tienda/Footer.html" %}

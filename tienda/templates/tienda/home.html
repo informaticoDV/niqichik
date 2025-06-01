@@ -2,13 +2,15 @@
 {% load static %}
 {% load custom_filters %}
 
-
 <body>
+<div class="contenido">
+
   <br>
   <div class="container">
     <form method="GET" class="mb-4">
       <div class="input-group">
-        <input type="text" name="q" class="form-control" placeholder="Buscar productos..." value="{{ request.GET.q }}">
+        <input type="text" name="q" class="form-control" placeholder="Buscar productos..." value="{{ query }}">
+
         <button type="submit" class="btn btn-primary">
           <i class="bi bi-search"></i>
         </button>
@@ -16,7 +18,7 @@
     </form>
 
     <div class="row justify-content-center">
-      {% for producto in productos %}
+      {% for producto in page_obj %}
       <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
         <div class="card h-100 shadow-sm">
           <!-- Imagen centrada y redimensionada -->
@@ -67,10 +69,16 @@
 
 
             <li class="list-group-item" align="center">
-             <form method="POST" action="{% url 'eliminar_producto' producto.id %}">
+              <form method="POST" action="{% url 'eliminar_producto' producto.id %}" onsubmit="return confirmarEliminacion();">
                 {% csrf_token %}
-              <button class="btn btn-outline-danger btn-sm me-2">Eliminar</button>
+                <button class="btn btn-outline-danger btn-sm me-2">Eliminar</button>
               </form>
+
+              <script>
+                function confirmarEliminacion() {
+                  return confirm("¿Estás seguro que deseas eliminar este producto?");
+                }
+              </script>
             </li>
 
             <li class="list-group-item" align="center">
@@ -88,6 +96,47 @@
     </div>
   </div>
   </div>
+<nav aria-label="Paginación de productos">
+  <ul class="pagination justify-content-center">
+
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Anterior">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">&laquo;</span>
+      </li>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <li class="page-item active" aria-current="page">
+          <span class="page-link">{{ num }}</span>
+        </li>
+      {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Siguiente">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">&raquo;</span>
+      </li>
+    {% endif %}
+
+  </ul>
+</nav>
 
   {% include "tienda/Footer.html" %}
 <div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
@@ -112,4 +161,5 @@
     imagenModalSrc.src = url;
   });
 </script>
+</div>
 </body>

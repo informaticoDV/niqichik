@@ -1,10 +1,7 @@
 from django.db.models import Sum
-from django.shortcuts import render
-from .models import Producto
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Producto
-from .forms import ProductoForm
+from .forms import ProductoForm, EditarProductoForm
+from django.core.paginator import Paginator
 from django.db.models import Q
 
 def home(request):
@@ -16,8 +13,12 @@ def home(request):
     else:
         productos = Producto.objects.all()
 
+    paginator = Paginator(productos, 8)  # 8 productos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'tienda/home.html', {
-        'productos': productos,
+        'page_obj': page_obj,
         'query': query,
     })
 
@@ -32,8 +33,12 @@ def tienda(request):
     else:
         productos = Producto.objects.all()
 
+    paginator = Paginator(productos, 8)  # 8 productos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'tienda/tienda.html', {
-        'productos': productos,
+        'page_obj': page_obj,
         'query': query,
     })
 
@@ -59,7 +64,7 @@ def agregar_producto(request):
 def editar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, vendedor=request.user)
     if request.method == 'POST':
-        form = ProductoForm(request.POST, request.FILES, instance=producto)
+        form = EditarProductoForm(request.POST, request.FILES, instance=producto)
         if form.is_valid():
             form.save()
             return redirect('tienda')
@@ -73,7 +78,7 @@ def eliminar_producto(request, producto_id):
     if request.method == 'POST':
         producto.delete()
         return redirect('tienda')
-    return render(request, 'producto/eliminar_confirmacion.html', {'producto': producto})
+    return render(request, 'tienda/eliminar_confirmacion.html', {'producto': producto})
 
 
 

@@ -29,6 +29,7 @@ urlpatterns = [
     path('tienda/agregar/', views.agregar_producto, name='agregar_producto'),
     path('tienda/<int:producto_id>/editar/', views.editar_producto, name='editar_producto'),
     path('tienda/<int:producto_id>/eliminar/', views.eliminar_producto, name='eliminar_producto'),
+
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),  # <-- esto importa las vistas como login/logout
     path('producto/<int:producto_id>/agotado/', views.marcar_agotado, name='marcar_agotado'),
