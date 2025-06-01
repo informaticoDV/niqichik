@@ -11,4 +11,4 @@ class ProductoForm(forms.ModelForm):
 class EditarProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ['precio', 'descripcion']  # Asegúrate de incluir todos los que quieres editar
+        fields = ['precio', 'descripcion', 'descripcion', 'imagen']  # Asegúrate de incluir todos los que quieres editar
