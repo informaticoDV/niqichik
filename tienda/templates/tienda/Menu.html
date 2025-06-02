@@ -5,133 +5,132 @@
   <meta charset="UTF-8">
   <title>Menú - Niqi-Chik</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: white;
-    }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: white;
+  }
 
+  .contenido {
+    padding: 20px 5px;
+    transition: margin-right 0.3s;
+  }
+
+  @media (min-width: 768px) {
     .contenido {
-      padding: 20px;
-      transition: margin-right 0.3s;
+      margin-right: 250px;
+      padding-left: 30px;
+    }
+  }
+
+  .menu-derecho {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    right: -250px;
+    background-color: rgba(248, 200, 220, 0.8); /* Transparencia para efecto cinta */
+    color: #880e4f;
+    padding: 20px;
+    transition: right 0.3s;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    backdrop-filter: blur(3px); /* Suaviza el fondo si hay contenido detrás */
+  }
+
+  .menu-derecho.abierto {
+    right: 0;
+  }
+
+  .menu-derecho h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #880e4f;
+  }
+
+  .menu-derecho input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #880e4f;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    color: #880e4f;
+    background-color: #f5e1fa;
+  }
+
+  .menu-derecho a {
+    display: block;
+    padding: 12px 20px;
+    color: #880e4f;
+    text-decoration: none;
+    transition: background 0.3s;
+    border-radius: 5px;
+  }
+
+  .menu-derecho a:hover {
+    background-color: #e7c3f6;
+  }
+
+  .resultado {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #880e4f;
+  }
+
+  .btn-menu {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #f8c8dc;
+    color: #880e4f;
+    border: 2px solid #880e4f;
+    padding: 10px 15px;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 1100;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+
+  @media (min-width: 768px) {
+    .btn-menu {
+      display: none;
     }
 
     .menu-derecho {
-      height: 100vh;
-      width: 250px;
-      position: fixed;
-      top: 0;
-      right: -250px;
-      background-color: #f8c8dc; /* fondo nuevo */
-      color: #880e4f; /* texto nuevo */
-      padding: 20px;
-      transition: right 0.3s;
-      box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-      z-index: 1000;
-    }
-
-    .menu-derecho.abierto {
       right: 0;
     }
-
-    .menu-derecho h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #880e4f;
-    }
-
-    .menu-derecho input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #880e4f;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      color: #880e4f;
-      background-color: #f5e1fa;
-    }
-
-    .menu-derecho a {
-      display: block;
-      padding: 12px 20px;
-      color: #880e4f;
-      text-decoration: none;
-      transition: background 0.3s;
-      border-radius: 5px;
-    }
-
-    .menu-derecho a:hover {
-      background-color: #e7c3f6;
-    }
-
-    .resultado {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #880e4f;
-    }
-    .btn-menu {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #f8c8dc;
-      color: #880e4f;
-      border: 2px solid #880e4f;
-      padding: 10px 15px;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 1100;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-
-    @media (min-width: 768px) {
-      .btn-menu {
-        display: none;
-      }
-
-      .menu-derecho {
-        right: 0;
-      }
-
-      .contenido {
-        margin-right: 250px;
-      }
-    }
-    .titulo-scriptify {
-  font-family: 'Great Vibes', cursive;
-  font-size: 40px;
-  color: #880e4f;
-  text-align: center;
-  margin-top: 12px;
-}
-    .titulo-scriptifyMini {
-  font-family: 'Great Vibes', cursive;
-  font-size: 30px;
-  color: #880e4f;
-  text-align: center;
-  margin-top: 0px;
-}
-.titulo-scriptify2{
-  font-family: Arial, sans-serif;
-  font-size: 25px;
-  color: #880e4f;
-  text-align: left;
-  margin-top: 0px;
   }
-    .contenido {
-  padding-left: 5px; /* Menos espacio en pantallas pequeñas */
-}
-@media (min-width: 768px) {
-  .contenido {
-    margin-right: 250px; /* mantener espacio del menú derecho en escritorio */
-    padding-left: 30px;  /* puedes ajustar este valor */
-  }
-}
 
-  </style>
+  .titulo-scriptify {
+    font-family: 'Great Vibes', cursive;
+    font-size: 40px;
+    color: #880e4f;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .titulo-scriptifyMini {
+    font-family: 'Great Vibes', cursive;
+    font-size: 30px;
+    color: #880e4f;
+    text-align: center;
+    margin-top: 0px;
+  }
+
+  .titulo-scriptify2 {
+    font-family: Arial, sans-serif;
+    font-size: 25px;
+    color: #880e4f;
+    text-align: left;
+    margin-top: 0px;
+  }
+</style>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
