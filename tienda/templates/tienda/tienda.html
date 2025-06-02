@@ -35,11 +35,12 @@
           </div>
 
           <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <strong>{{ producto.precio|formato_chileno }}</strong>
-            </li>
+
             <li class="list-group-item">
               <i class="bi bi-card-text"></i> {{ producto.descripcion }}
+            </li>
+            <li class="list-group-item">
+              <strong>{{ producto.precio|formato_chileno }}</strong>
             </li>
             <li class="list-group-item">
               {% if not producto.estado %}
