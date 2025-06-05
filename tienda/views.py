@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import ProductoForm, EditarProductoForm
 from django.core.paginator import Paginator
 from django.db.models import Q
+from .models import Producto, Informacion
 
 def home(request):
     query = request.GET.get("q", "")
@@ -21,7 +22,6 @@ def home(request):
         'page_obj': page_obj,
         'query': query,
     })
-
 
 
 def tienda(request):
@@ -80,15 +80,58 @@ def eliminar_producto(request, producto_id):
         return redirect('tienda')
     return render(request, 'tienda/eliminar_confirmacion.html', {'producto': producto})
 
+# views.py
+from .models import Producto, Informacion
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages  # Asegúrate de importar esto
+
+@login_required
+def vender_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id, vendedor=request.user)
+
+    if request.method == 'POST':
+        if producto.stock > 0:
+            producto.stock -= 1
+            producto.vendidos += 1
+            producto.save()
+            messages.success(request, "Producto vendido correctamente.")
+        else:
+            messages.error(request, "No se puede vender. El producto no tiene stock.")
+
+        return redirect('tienda')
+
+    return render(request, 'tienda/tienda.html', {'producto': producto})
 
 
+from .models import Informacion
+from django.db.models import Sum
+
+from .models import Producto
+from django.db.models import F, Sum, ExpressionWrapper, DecimalField
+
+@login_required
 def dashboard(request):
-    total_invertido = Producto.objects.aggregate(Sum('costo'))['costo__sum'] or 0
-    total_vendido = Producto.objects.aggregate(Sum('vendido'))['vendido__sum'] or 0
-    return render(request, 'tu_template.html', {
-        'total_invertido': total_invertido,
-        'total_vendido': total_vendido
+    productos = Producto.objects.filter(vendedor=request.user)
+
+    # Calcula ganancia = (precio) * vendidos
+    ganancia_total = productos.annotate(
+        ganancia_unitaria=ExpressionWrapper(
+            F('precio'),
+            output_field=DecimalField(max_digits=10, decimal_places=2)
+        ),
+        ganancia_total=ExpressionWrapper(
+            ((F('precio') * F('vendidos'))),
+            output_field=DecimalField(max_digits=10, decimal_places=2)
+        )
+    ).aggregate(total=Sum('ganancia_total'))['total'] or 0
+
+
+    return render(request, 'tienda/dashboard.html', {
+        'monto_ganado': ganancia_total,
     })
+
 
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect

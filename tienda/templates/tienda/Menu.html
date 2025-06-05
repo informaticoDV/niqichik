@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Menú - Niqi-Chik</title>
+  <title>Niqi-Chik</title>
   <style>
   * {
     box-sizing: border-box;
@@ -12,9 +12,8 @@
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: white;
+    background-color: #fefafc !important; /* o un color similar al del logo */
   }
-
   .contenido {
     padding: 20px 5px;
     transition: margin-right 0.3s;
@@ -129,6 +128,21 @@
     text-align: left;
     margin-top: 0px;
   }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.7);
+    background-size: 100% 100%;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+  }
+
+  .carousel-control-prev,
+  .carousel-control-next {
+    filter: drop-shadow(1px 1px 2px #000);
+  }
+
 </style>
 
   <meta charset="UTF-8">
@@ -165,12 +179,13 @@
     <!-- Tus campos aquí -->
 
     {% if user.is_authenticated %}
-    <a href="{% url 'agregar_producto' %}">Agregar producto</a>
+    <a href="{% url 'agregar_producto' %}"><i class="bi bi-bag-plus-fill"></i> Agregar producto</a>
 
-    <a href="{% url 'tienda' %}">Mi Tienda</a>
-    <a href="{% url 'logout' %}">Cerrar sesión</a>
+    <a href="{% url 'tienda' %}"><i class="bi bi-shop"></i> Mi Tienda</a>
+    <a href="{% url 'dashboard' %}"><i class="bi bi-info-circle"></i> Información</a>
+    <a href="{% url 'logout' %}"><i class="bi bi-door-open"></i> Cerrar sesión</a>
     {% else %}
-    <a href="{% url 'login' %}">Iniciar Sesión</a>
+    <a href="{% url 'login' %}"><i class="bi bi-door-open"></i> Iniciar Sesión</a>
     {% endif %}
     </form>
 

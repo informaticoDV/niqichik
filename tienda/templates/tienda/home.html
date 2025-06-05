@@ -4,13 +4,11 @@
 
 <body>
 <div class="contenido">
-
   <br>
   <div class="container">
     <form method="GET" class="mb-4">
       <div class="input-group">
         <input type="text" name="q" class="form-control" placeholder="Buscar productos..." value="{{ query }}">
-
         <button type="submit" class="btn btn-primary">
           <i class="bi bi-search"></i>
         </button>
@@ -21,21 +19,48 @@
       {% for producto in page_obj %}
       <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
         <div class="card h-100 shadow-sm">
-          <!-- Imagen centrada y redimensionada -->
-          <img src="{{ producto.imagen.url }}"
-           class="card-img-top img-fluid p-2 img-clickable"
-           alt="{{ producto.nombre }}"
-           style="object-fit: contain; height: 200px; cursor: pointer;"
-           data-bs-toggle="modal"
-           data-bs-target="#imagenModal"
-           data-img-url="{{ producto.imagen.url }}">
+
+          <!-- Carrusel de imágenes -->
+          <div id="carousel-{{ producto.id }}" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              {% if producto.imagen %}
+              <div class="carousel-item active">
+                <img src="{{ producto.imagen.url }}"
+                     class="d-block w-100 img-fluid p-2 img-clickable"
+                     style="object-fit: contain; height: 200px; cursor: pointer;"
+                     alt="{{ producto.nombre }}"
+                     data-bs-toggle="modal"
+                     data-bs-target="#imagenModal"
+                     data-img-url="{{ producto.imagen.url }}">
+              </div>
+              {% endif %}
+              {% if producto.imagen2 %}
+              <div class="carousel-item {% if not producto.imagen %}active{% endif %}">
+                <img src="{{ producto.imagen2.url }}"
+                     class="d-block w-100 img-fluid p-2 img-clickable"
+                     style="object-fit: contain; height: 200px; cursor: pointer;"
+                     alt="{{ producto.nombre }}"
+                     data-bs-toggle="modal"
+                     data-bs-target="#imagenModal"
+                     data-img-url="{{ producto.imagen2.url }}">
+              </div>
+              {% endif %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ producto.id }}" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ producto.id }}" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Siguiente</span>
+            </button>
+          </div>
 
           <div class="card-body text-center">
             <h5 class="card-title">{{ producto.nombre }}</h5>
           </div>
 
           <ul class="list-group list-group-flush">
-
             <li class="list-group-item">
               <i class="bi bi-card-text"></i> {{ producto.descripcion }}
             </li>
@@ -53,43 +78,6 @@
                 </div>
               {% endif %}
             </li>
-
-    {% if user.is_authenticated %}
-            <li class="list-group-item" align="center">
-              {% if not producto.estado %}
-                <form method="POST" action="{% url 'marcar_disponible' producto.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-success btn-sm">Marcar Disponible</button>
-              </form>
-              {% else %}
-                <form method="POST" action="{% url 'marcar_agotado' producto.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-warning btn-sm">Marcar Agotado</button>
-              </form>
-              {% endif %}
-
-
-            <li class="list-group-item" align="center">
-              <form method="POST" action="{% url 'eliminar_producto' producto.id %}" onsubmit="return confirmarEliminacion();">
-                {% csrf_token %}
-                <button class="btn btn-outline-danger btn-sm me-2">Eliminar</button>
-              </form>
-
-              <script>
-                function confirmarEliminacion() {
-                  return confirm("¿Estás seguro que deseas eliminar este producto?");
-                }
-              </script>
-            </li>
-
-            <li class="list-group-item" align="center">
-             <form method="POST" action="{% url 'editar_producto' producto.id %}">
-                {% csrf_token %}
-              <button class="btn btn-outline-warning btn-sm me-2">Editar</button>
-              </form>
-            </li>
-
-    {% endif %}
           </ul>
         </div>
       </div>
@@ -97,70 +85,46 @@
     </div>
   </div>
 
-<nav aria-label="Paginación de productos">
-  <ul class="pagination justify-content-center">
-
-    {% if page_obj.has_previous %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Anterior">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled">
-        <span class="page-link">&laquo;</span>
-      </li>
-    {% endif %}
-
-    {% for num in page_obj.paginator.page_range %}
-      {% if page_obj.number == num %}
-        <li class="page-item active" aria-current="page">
-          <span class="page-link">{{ num }}</span>
+  <!-- Paginación -->
+  <nav aria-label="Paginación de productos">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">&laquo;</a>
         </li>
       {% else %}
-        <li class="page-item">
+        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
           <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
         </li>
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">&raquo;</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
       {% endif %}
-    {% endfor %}
+    </ul>
+  </nav>
 
-    {% if page_obj.has_next %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Siguiente">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled">
-        <span class="page-link">&raquo;</span>
-      </li>
-    {% endif %}
 
-  </ul>
-</nav>
-</div>
-  {% include "tienda/Footer.html" %}
-<div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-body p-0">
-        <img id="imagenModalSrc" src="" class="img-fluid w-100 rounded" alt="Imagen ampliada">
-      </div>
-      <div class="modal-footer py-2">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-<script>
-  const imagenModal = document.getElementById('imagenModal');
-  const imagenModalSrc = document.getElementById('imagenModalSrc');
+  <!-- Scripts -->
+  <script>
+    const imagenModal = document.getElementById('imagenModal');
+    const imagenModalSrc = document.getElementById('imagenModalSrc');
 
-  imagenModal.addEventListener('show.bs.modal', function (event) {
-    const trigger = event.relatedTarget;
-    const url = trigger.getAttribute('data-img-url');
-    imagenModalSrc.src = url;
-  });
-</script>
+    imagenModal.addEventListener('show.bs.modal', function (event) {
+      const trigger = event.relatedTarget;
+      const url = trigger.getAttribute('data-img-url');
+      imagenModalSrc.src = url;
+    });
+  </script>
 </div>
 </body>
+
+{% include "tienda/Footer.html" %}

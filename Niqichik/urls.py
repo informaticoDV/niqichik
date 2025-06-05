@@ -24,16 +24,18 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),  # <-- esto importa las vistas como login/logout
+    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('', views.home, name='home'),
     path('Mitienda', views.tienda, name='tienda'),
     path('tienda/agregar/', views.agregar_producto, name='agregar_producto'),
     path('tienda/<int:producto_id>/editar/', views.editar_producto, name='editar_producto'),
     path('tienda/<int:producto_id>/eliminar/', views.eliminar_producto, name='eliminar_producto'),
-
-    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
-    path('accounts/', include('django.contrib.auth.urls')),  # <-- esto importa las vistas como login/logout
     path('producto/<int:producto_id>/agotado/', views.marcar_agotado, name='marcar_agotado'),
     path('producto/<int:producto_id>/disponible/', views.marcar_disponible, name='marcar_disponible'),
+    path('producto/<int:producto_id>/vender/', views.vender_producto, name='vender_producto'),
+    path('informacion/', views.dashboard, name='dashboard'),
+
 
     path('nuevoproducto', views.home, name='cargarProducto'),
     path('buscar', views.home, name='buscarProducto'),
