@@ -78,6 +78,7 @@
                 </div>
               {% endif %}
             </li>
+
           </ul>
         </div>
       </div>
@@ -113,15 +114,66 @@
   </nav>
 
 
+ <!-- Modal de imagen ampliada con navegación -->
+  <div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 text-center">
+          <img id="imagenModalSrc" src="" class="img-fluid w-100 rounded" alt="Imagen ampliada">
+          <!-- Botones navegación -->
+          <button id="prevImage" class="btn btn-dark position-absolute top-50 start-0 translate-middle-y" style="z-index: 1051;">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button id="nextImage" class="btn btn-dark position-absolute top-50 end-0 translate-middle-y" style="z-index: 1051;">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Scripts -->
   <script>
+    function confirmarEliminacion() {
+      return confirm("¿Estás seguro que deseas eliminar este producto?");
+    }
+
     const imagenModal = document.getElementById('imagenModal');
     const imagenModalSrc = document.getElementById('imagenModalSrc');
+    const prevBtn = document.getElementById('prevImage');
+    const nextBtn = document.getElementById('nextImage');
 
+    let currentImageIndex = 0;
+    let imageUrls = [];
+
+    // Captura todas las imágenes clickeables
+    const allImgElements = document.querySelectorAll('.img-clickable');
+    allImgElements.forEach(img => {
+      imageUrls.push(img.getAttribute('data-img-url'));
+    });
+
+    // Mostrar imagen en el modal
     imagenModal.addEventListener('show.bs.modal', function (event) {
       const trigger = event.relatedTarget;
       const url = trigger.getAttribute('data-img-url');
+      currentImageIndex = imageUrls.indexOf(url);
       imagenModalSrc.src = url;
+    });
+
+    // Botón anterior
+    prevBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
+      imagenModalSrc.src = imageUrls[currentImageIndex];
+    });
+
+    // Botón siguiente
+    nextBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
+      imagenModalSrc.src = imageUrls[currentImageIndex];
     });
   </script>
 </div>
