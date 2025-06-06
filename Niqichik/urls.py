@@ -35,6 +35,7 @@ urlpatterns = [
     path('producto/<int:producto_id>/disponible/', views.marcar_disponible, name='marcar_disponible'),
     path('producto/<int:producto_id>/vender/', views.vender_producto, name='vender_producto'),
     path('informacion/', views.dashboard, name='dashboard'),
+    path('producto/<slug:slug>/', views.detalle_producto, name='detalle_producto'),
 
 
     path('nuevoproducto', views.home, name='cargarProducto'),

@@ -1,9 +1,16 @@
-from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 from .forms import ProductoForm, EditarProductoForm
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import Producto, Informacion
+from django.contrib import messages  # Asegúrate de importar esto
+from django.db.models import F, Sum, ExpressionWrapper, DecimalField
+from django.views.decorators.http import require_POST
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render, redirect
+from .models import Producto
+
 
 def home(request):
     query = request.GET.get("q", "")
@@ -80,12 +87,7 @@ def eliminar_producto(request, producto_id):
         return redirect('tienda')
     return render(request, 'tienda/eliminar_confirmacion.html', {'producto': producto})
 
-# views.py
-from .models import Producto, Informacion
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages  # Asegúrate de importar esto
+
 
 @login_required
 def vender_producto(request, producto_id):
@@ -105,11 +107,6 @@ def vender_producto(request, producto_id):
     return render(request, 'tienda/tienda.html', {'producto': producto})
 
 
-from .models import Informacion
-from django.db.models import Sum
-
-from .models import Producto
-from django.db.models import F, Sum, ExpressionWrapper, DecimalField
 
 @login_required
 def dashboard(request):
@@ -133,18 +130,12 @@ def dashboard(request):
     })
 
 
-from django.views.decorators.http import require_POST
-from django.shortcuts import redirect
 
 @require_POST
 def reiniciar_totales(request):
     Producto.objects.update(costo=0, vendido=0)
     return redirect('dashboard')  # o donde muestres el resumen
 
-# views.py
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login
-from django.shortcuts import render, redirect
 
 def login_view(request):
     if request.method == 'POST':
@@ -157,11 +148,6 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
-# views.py
-
-from django.shortcuts import get_object_or_404, redirect
-from .models import Producto
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def marcar_agotado(request, producto_id):
@@ -177,3 +163,10 @@ def marcar_disponible(request, producto_id):
     producto.save()
     return redirect('tienda')  # Reemplaza con el nombre real de tu vista principal
 
+def detalle_producto(request, slug):
+    producto = get_object_or_404(Producto, slug=slug)
+    url_absoluta = request.build_absolute_uri(producto.get_absolute_url())
+    return render(request, 'tienda/detalle_producto.html', {
+        'producto': producto,
+        'url_absoluta': url_absoluta,
+    })

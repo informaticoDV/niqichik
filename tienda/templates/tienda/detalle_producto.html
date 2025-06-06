@@ -16,7 +16,6 @@
     </form>
 
     <div class="row justify-content-center">
-      {% for producto in page_obj %}
       <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
         <div class="card h-100 shadow-sm">
 
@@ -65,7 +64,7 @@
               <i class="bi bi-card-text"></i> {{ producto.descripcion }}
             </li>
             <li class="list-group-item">
-                <strong>{{ producto.precio|formato_chileno }}</strong></td>
+              <strong>{{ producto.precio|formato_chileno }}</strong>
             </li>
             <li class="list-group-item">
               {% if not producto.estado %}
@@ -78,6 +77,7 @@
                 </div>
               {% endif %}
             </li>
+
             <div class="card-footer text-center">
               <a href="https://api.whatsapp.com/send?text={{ '✨ ¡Mira este producto de Niqi-Chik! ✨🛍️ ' | add:'https://www.niqichik.com/producto/' | add:producto.slug | urlencode }}"
                  class="btn btn-success rounded-pill shadow d-inline-flex align-items-center gap-2 px-4 py-2 transition"
@@ -86,45 +86,15 @@
                 <i class="bi bi-whatsapp fs-5"></i> Compartir
               </a>
             </div>
-
-
           </ul>
-
         </div>
       </div>
-      {% endfor %}
     </div>
   </div>
 
-  <!-- Paginación -->
-  <nav aria-label="Paginación de productos">
-    <ul class="pagination justify-content-center">
-      {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">&laquo;</a>
-        </li>
-      {% else %}
-        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-      {% endif %}
-
-      {% for num in page_obj.paginator.page_range %}
-        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-          <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
-        </li>
-      {% endfor %}
-
-      {% if page_obj.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">&raquo;</a>
-        </li>
-      {% else %}
-        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-      {% endif %}
-    </ul>
-  </nav>
 
 
- <!-- Modal de imagen ampliada con navegación -->
+  <!-- Modal de imagen ampliada con navegación -->
   <div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content position-relative">
@@ -145,13 +115,8 @@
     </div>
   </div>
 
-
   <!-- Scripts -->
-  <script>
-    function confirmarEliminacion() {
-      return confirm("¿Estás seguro que deseas eliminar este producto?");
-    }
-
+   <script>
     const imagenModal = document.getElementById('imagenModal');
     const imagenModalSrc = document.getElementById('imagenModalSrc');
     const prevBtn = document.getElementById('prevImage');
@@ -187,7 +152,6 @@
     });
   </script>
 </div>
-
 </body>
 
 {% include "tienda/Footer.html" %}
