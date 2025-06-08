@@ -182,6 +182,7 @@
     {% csrf_token %}
     <!-- Tus campos aquí -->
 
+    <a href="{% url 'home' %}"><i class="bi bi-house-door"></i> Inicio</a>
     {% if user.is_authenticated %}
     <a href="{% url 'agregar_producto' %}"><i class="bi bi-bag-plus-fill"></i> Agregar producto</a>
 
@@ -191,9 +192,9 @@
                 <i class="bi bi-whatsapp fs-6"></i> Compartir
               </a>
     <a href="{% url 'logout' %}"><i class="bi bi-door-open"></i> Cerrar sesión</a>
-    {% else %}
-    <a href="{% url 'login' %}"><i class="bi bi-door-open"></i> Iniciar Sesión</a>
     {% endif %}
+
+    <!-- <a href="{% url 'login' %}"><i class="bi bi-door-open"></i> Iniciar Sesión</a> -->
     </form>
 
 
