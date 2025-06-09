@@ -9,19 +9,31 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
+from django.db.models import Q, IntegerField
+from django.db.models.functions import Substr, Length, Cast
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 from .models import Producto
-
 
 def home(request):
     query = request.GET.get("q", "")
-    if query:
-        productos = Producto.objects.filter(
-            Q(nombre__icontains=query) | Q(descripcion__icontains=query)
-        )
-    else:
-        productos = Producto.objects.all()
 
-    paginator = Paginator(productos, 8)  # 8 productos por página
+    productos_base = Producto.objects.annotate(
+        slug_len=Length("slug"),
+        number_part=Cast(
+            Substr("slug", Length("slug") - 5, 6),
+            IntegerField()
+        )
+    )
+
+    if query:
+        productos = productos_base.filter(
+            Q(nombre__icontains=query) | Q(descripcion__icontains=query)
+        ).order_by("number_part")
+    else:
+        productos = productos_base.order_by("number_part")
+
+    paginator = Paginator(productos, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -33,14 +45,23 @@ def home(request):
 
 def tienda(request):
     query = request.GET.get("q", "")
-    if query:
-        productos = Producto.objects.filter(
-            Q(nombre__icontains=query) | Q(descripcion__icontains=query)
-        )
-    else:
-        productos = Producto.objects.all()
 
-    paginator = Paginator(productos, 8)  # 8 productos por página
+    productos_base = Producto.objects.annotate(
+        slug_len=Length("slug"),
+        number_part=Cast(
+            Substr("slug", Length("slug") - 5, 6),
+            IntegerField()
+        )
+    )
+
+    if query:
+        productos = productos_base.filter(
+            Q(nombre__icontains=query) | Q(descripcion__icontains=query)
+        ).order_by("number_part")
+    else:
+        productos = productos_base.order_by("number_part")
+
+    paginator = Paginator(productos, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -48,6 +69,7 @@ def tienda(request):
         'page_obj': page_obj,
         'query': query,
     })
+
 
 
 def buscarProducto(request):
@@ -152,9 +174,6 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
-from django.shortcuts import get_object_or_404, redirect
-from django.views.decorators.http import require_POST
-from .models import Producto
 
 @login_required
 def marcar_disponible(request, producto_id):
