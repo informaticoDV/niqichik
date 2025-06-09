@@ -76,8 +76,11 @@ def editar_producto(request, producto_id):
             form.save()
             return redirect('tienda')
     else:
-        form = ProductoForm(instance=producto)
+        form = EditarProductoForm(instance=producto)  # Cambié ProductoForm por EditarProductoForm
     return render(request, 'tienda/editar.html', {'form': form, 'producto': producto})
+
+
+
 
 @login_required
 def eliminar_producto(request, producto_id):
@@ -86,7 +89,6 @@ def eliminar_producto(request, producto_id):
         producto.delete()
         return redirect('tienda')
     return render(request, 'tienda/eliminar_confirmacion.html', {'producto': producto})
-
 
 
 @login_required
@@ -102,7 +104,8 @@ def vender_producto(request, producto_id):
         else:
             messages.error(request, "No se puede vender. El producto no tiene stock.")
 
-        return redirect('tienda')
+        next_url = request.POST.get('next', 'tienda')  # url por defecto si no viene next
+        return redirect(next_url)
 
     return render(request, 'tienda/tienda.html', {'producto': producto})
 
@@ -149,19 +152,27 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
-@login_required
-def marcar_agotado(request, producto_id):
-    producto = get_object_or_404(Producto, id=producto_id, vendedor=request.user)
-    producto.estado = False
-    producto.save()
-    return redirect('tienda')  # Reemplaza con el nombre real de tu vista principal
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
+from .models import Producto
 
 @login_required
 def marcar_disponible(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, vendedor=request.user)
     producto.estado = True
     producto.save()
-    return redirect('tienda')  # Reemplaza con el nombre real de tu vista principal
+    next_url = request.POST.get('next', '/')
+    return redirect(next_url)
+
+@require_POST
+def marcar_agotado(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    producto.estado = False  # marca como agotado
+    producto.save()
+
+    next_url = request.POST.get('next', '/')
+    return redirect(next_url)
+
 
 def detalle_producto(request, slug):
     producto = get_object_or_404(Producto, slug=slug)

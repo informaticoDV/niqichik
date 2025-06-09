@@ -88,16 +88,18 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <tr id="producto-{{ producto.id }}">
                   <td>
                     {% if not producto.estado %}
                       <form method="POST" action="{% url 'marcar_disponible' producto.id %}">
                         {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
                         <button type="submit" class="btn btn-outline-success btn-sm w-100 mb-2">Disponible</button>
                       </form>
                     {% else %}
                       <form method="POST" action="{% url 'marcar_agotado' producto.id %}">
                         {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
                         <button type="submit" class="btn btn-outline-warning btn-sm w-100 mb-2">Agotado</button>
                       </form>
                     {% endif %}
@@ -113,6 +115,7 @@
                     </form>
                     <form method="POST" action="{% url 'vender_producto' producto.id %}">
                       {% csrf_token %}
+                      <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
                       <button type="submit"
                               class="btn btn-outline-success btn-sm w-100"
                               {% if producto.stock <= 0 %}disabled title="Sin stock disponible"{% endif %}>
@@ -120,6 +123,7 @@
                       </button>
                     </form>
                   </td>
+                  <!-- resto del código -->
                 </tr>
               </tbody>
             </table>
