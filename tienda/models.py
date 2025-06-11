@@ -4,11 +4,17 @@ from cloudinary.models import CloudinaryField
 from django.utils.text import slugify
 from django.urls import reverse
 
-# models.py
-# models.py
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
 class Producto(models.Model):
     codigo = models.CharField(max_length=6, unique=True, editable=False, null=True, blank=True)
     nombre = models.CharField(max_length=100)
+    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField()
@@ -42,8 +48,6 @@ class Producto(models.Model):
     @property
     def url_absoluta(self):
         return self.get_absolute_url()
-
-
 
 
 class Informacion(models.Model):

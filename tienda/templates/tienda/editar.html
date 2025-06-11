@@ -10,6 +10,18 @@
     <form method="POST" enctype="multipart/form-data" class="card p-4 shadow mt-4">
       {% csrf_token %}
 
+      <!-- Categirua -->
+      <div class="mb-3 row">
+        <label class="col-sm-2 col-form-label">Categoria actual:</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control-plaintext" readonly value="{{ producto.categoria }}">
+        </div>
+        <label class="col-sm-2 col-form-label">Nueva categoria:</label>
+        <div class="col-sm-4">
+          {{ form.categoria|add_class:"form-control" }}
+        </div>
+      </div>
+
       <!-- Precio -->
       <div class="mb-3 row">
         <label class="col-sm-2 col-form-label">Precio actual:</label>

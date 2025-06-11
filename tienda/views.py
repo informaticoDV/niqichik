@@ -1,22 +1,19 @@
-from django.contrib.auth.decorators import login_required
-from .forms import ProductoForm, EditarProductoForm
+from .forms import ProductoForm, EditarProductoForm, CategoriaForm
 from django.core.paginator import Paginator
-from django.db.models import Q
 from django.contrib import messages  # Asegúrate de importar esto
 from django.db.models import F, Sum, ExpressionWrapper, DecimalField
-from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Q, IntegerField
 from django.db.models.functions import Substr, Length, Cast
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
-from .models import Producto
+from .models import Producto, Categoria
 
 def home(request):
     query = request.GET.get("q", "")
+    categoria_id = request.GET.get("categoria", "")
 
     productos_base = Producto.objects.annotate(
         slug_len=Length("slug"),
@@ -27,24 +24,33 @@ def home(request):
     )
 
     if query:
-        productos = productos_base.filter(
+        productos_base = productos_base.filter(
             Q(nombre__icontains=query) | Q(descripcion__icontains=query)
-        ).order_by("number_part")
-    else:
-        productos = productos_base.order_by("number_part")
+        )
+
+    if categoria_id:
+        productos_base = productos_base.filter(categoria_id=categoria_id)
+
+    productos = productos_base.order_by("number_part")
 
     paginator = Paginator(productos, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    categorias = Categoria.objects.all()  # Traemos las categorías para el filtro
 
     return render(request, 'tienda/home.html', {
         'page_obj': page_obj,
         'query': query,
+        'categorias': categorias,
+        'categoria_id': categoria_id,
     })
+
 
 
 def tienda(request):
     query = request.GET.get("q", "")
+    categoria_id = request.GET.get("categoria", "")
 
     productos_base = Producto.objects.annotate(
         slug_len=Length("slug"),
@@ -55,19 +61,26 @@ def tienda(request):
     )
 
     if query:
-        productos = productos_base.filter(
+        productos_base = productos_base.filter(
             Q(nombre__icontains=query) | Q(descripcion__icontains=query)
-        ).order_by("number_part")
-    else:
-        productos = productos_base.order_by("number_part")
+        )
+
+    if categoria_id:
+        productos_base = productos_base.filter(categoria_id=categoria_id)
+
+    productos = productos_base.order_by("number_part")
 
     paginator = Paginator(productos, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    categorias = Categoria.objects.all()  # Traemos las categorías para el filtro
+
     return render(request, 'tienda/tienda.html', {
         'page_obj': page_obj,
         'query': query,
+        'categorias': categorias,
+        'categoria_id': categoria_id,
     })
 
 
@@ -75,6 +88,8 @@ def tienda(request):
 def buscarProducto(request):
     productos = Producto.objects.all()
     return render(request, 'tienda/home.html', {'productos': productos})
+
+
 
 @login_required
 def agregar_producto(request):
@@ -111,6 +126,33 @@ def eliminar_producto(request, producto_id):
         producto.delete()
         return redirect('tienda')
     return render(request, 'tienda/eliminar_confirmacion.html', {'producto': producto})
+
+
+@login_required
+def categoria(request):
+    categoria = Categoria.objects.all()
+    return render(request, 'tienda/categoria.html', {'categoria': categoria})
+
+@login_required
+def agregar_categoria(request):
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST)
+        if form.is_valid():
+            form.save()  # ✅ Guarda directamente
+            return redirect('categoria')  # O el nombre correcto de la URL
+    else:
+        form = CategoriaForm()
+    return render(request, 'tienda/agregar_categoria.html', {'form': form})
+
+
+@login_required
+def eliminar_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id=categoria_id)
+    if request.method == 'POST':
+        categoria.delete()
+        return redirect('categoria')
+    return render(request, 'tienda/eliminar_confirmacion.html', {'categoria': categoria})
+
 
 
 @login_required
