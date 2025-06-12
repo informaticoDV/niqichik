@@ -71,62 +71,147 @@
             <h5 class="card-title">{{ producto.slug|capfirst }}</h5>
           </div>
 
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <i class="bi bi-tags"></i> {{ producto.categoria }}
-            </li>
-            <li class="list-group-item">
-              <i class="bi bi-card-text"></i> {{ producto.descripcion }}
-            </li>
-            <li class="list-group-item">
-              ({{ producto.stock }}) <strong>{{ producto.precio|formato_chileno }}</strong>
-            </li>
+
+
+              <ul class="list-group list-group-flush">
+                <!-- Categoria -->
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div id="valor-categoria-{{ producto.id }}">
+                  {{ producto.categoria }}
+                    </div>
+                    <!-- Botón para abrir el modal -->
+                    <button class="btn btn-outline-warning btn-sm"
+                      hx-get="{% url 'editar_campo_producto' producto.id 'categoria' %}"
+                      hx-target="#modal-body-Categoria" hx-swap="innerHTML"
+                      data-bs-toggle="modal" data-bs-target="#modalCategoria">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </div>
+                </li>
+              <!-- Modal para editar Categoria -->
+              <div class="modal fade" id="modalCategoria" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header"><h5 class="titulo-scriptify2">Editando categoria: <strong>{{ producto.nombre }}</strong></h5>
+                      <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div id="modal-body-Categoria" class="modal-body">
+                      <!-- Aquí HTMX cargará: editar_campo_modal.html -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+
+                <!-- Descripcion -->
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div id="valor-descripcion-{{ producto.id }}">
+                      {{ producto.descripcion }}
+                    </div>
+                    <!-- Botón para abrir el modal -->
+
+                    <button class="btn btn-outline-warning btn-sm"
+                      hx-get="{% url 'editar_campo_producto' producto.id 'descripcion' %}"
+                      hx-target="#modal-body-Descripcion" hx-swap="innerHTML"
+                      data-bs-toggle="modal" data-bs-target="#modalDescripcion">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </div>
+                </li>
+                <!-- Modal para editar descripcion -->
+                <div class="modal fade" id="modalDescripcion" tabindex="-1">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header"><h5 class="titulo-scriptify2">Editando descripción: <strong>{{ producto.nombre }}</strong></h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div id="modal-body-Descripcion" class="modal-body">
+                        <!-- Aquí HTMX cargará: editar_campo_modal.html -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
+
+                <!-- Precio -->
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div id="valor-precio-{{ producto.id }}">
+                  ({{ producto.stock }}) <strong>{{ producto.precio|formato_chileno }}</strong>
+                    </div>
+                    <!-- Botón para abrir el modal -->
+                    <button class="btn btn-outline-warning btn-sm"
+                      hx-get="{% url 'editar_campo_producto' producto.id 'precio' %}"
+                      hx-target="#modal-body-Precio" hx-swap="innerHTML"
+                      data-bs-toggle="modal" data-bs-target="#modalPrecio">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </div>
+                </li>
+              <!-- Modal para editar precio -->
+              <div class="modal fade" id="modalPrecio" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header"><h5 class="titulo-scriptify2">Editando descripción: <strong>{{ producto.nombre }}</strong></h5>
+                      <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div id="modal-body-Precio" class="modal-body">
+                      <!-- Aquí HTMX cargará: editar_campo_modal.html -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             <li class="list-group-item">
               {% if not producto.estado %}
+              <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center justify-content-center text-danger">
                   <div class="spinner-grow spinner-grow-sm me-2"></div> Agotado
                 </div>
+                <form method="POST" action="{% url 'marcar_disponible' producto.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
+                        <button type="submit" class="btn btn-outline-success btn-sm w-100 mb-2"><i class="bi bi-arrow-clockwise"></i></button>
+                      </form>
+                </div>
               {% else %}
+              <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center justify-content-center text-success">
                   <div class="spinner-grow spinner-grow-sm me-2"></div> Disponible
+                </div>
+                <form method="POST" action="{% url 'marcar_agotado' producto.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 mb-2"><i class="bi bi-arrow-clockwise"></i></button>
+                      </form>
                 </div>
               {% endif %}
             </li>
 
+
+
             {% if user.is_authenticated %}
             <table class="table table-bordered table-hover table-striped align-middle text-center mb-0">
-              <thead>
-                <tr>
-                  <th>Estado</th>
-                  <th>Editar</th>
-                </tr>
-              </thead>
               <tbody>
                 <tr id="producto-{{ producto.id }}">
                   <td>
-                    {% if not producto.estado %}
-                      <form method="POST" action="{% url 'marcar_disponible' producto.id %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
-                        <button type="submit" class="btn btn-outline-success btn-sm w-100 mb-2">Disponible</button>
-                      </form>
-                    {% else %}
-                      <form method="POST" action="{% url 'marcar_agotado' producto.id %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
-                        <button type="submit" class="btn btn-outline-warning btn-sm w-100 mb-2">Agotado</button>
-                      </form>
-                    {% endif %}
+                     <form method="POST" action="{% url 'eliminar_producto' producto.id %}" onsubmit="return confirmarEliminacion();">
+                      {% csrf_token %}
+                      <button class="btn btn-outline-danger btn-sm w-100 mb-2">Eliminar</button>
+                    </form>
                   </td>
                   <td>
                     <form method="POST" action="{% url 'editar_producto' producto.id %}">
                       {% csrf_token %}
                       <button class="btn btn-outline-warning btn-sm w-100 mb-2">Editar</button>
                     </form>
-                    <form method="POST" action="{% url 'eliminar_producto' producto.id %}" onsubmit="return confirmarEliminacion();">
-                      {% csrf_token %}
-                      <button class="btn btn-outline-danger btn-sm w-100 mb-2">Eliminar</button>
-                    </form>
+
                     <form method="POST" action="{% url 'vender_producto' producto.id %}">
                       {% csrf_token %}
                       <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
@@ -237,6 +322,8 @@
       currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
       imagenModalSrc.src = imageUrls[currentImageIndex];
     });
+
+
   </script>
 </div>
 </body>

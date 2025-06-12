@@ -1,0 +1,19 @@
+{% load static %}
+{% load custom_filters %}
+
+<div class="container mt-12">
+  <form
+    id="form-{{ campo }}-{{ producto.id }}"
+    hx-post="{% url 'editar_campo_producto' producto.id campo %}"
+    hx-target="#modal-body-{{ campo|capfirst }}"
+    hx-swap="innerHTML"
+    method="post"
+  >
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+  </form>
+</div>
+
+
+

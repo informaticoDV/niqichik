@@ -20,3 +20,11 @@ def add_class(field, css_class):
 @register.filter
 def urlquote(value):
     return urllib.parse.quote(str(value))
+
+
+@register.filter
+def getitem(obj, key):
+    try:
+        return obj[key]  # esto sí funciona con forms
+    except (KeyError, TypeError, AttributeError):
+        return ''

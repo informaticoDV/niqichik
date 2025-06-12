@@ -1,0 +1,17 @@
+{% if success %}
+  <div class="alert alert-success">Guardado exitosamente</div>
+{% else %}
+<form
+  id="form-{{ campo }}-{{ producto.id }}"
+  hx-post="{% url 'editar_campo_producto' producto.id campo %}"
+  hx-target="#modal-body-Categoria"
+  hx-swap="none"
+  method="post"
+  enctype="multipart/form-data"
+>
+
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+  </form>
+{% endif %}

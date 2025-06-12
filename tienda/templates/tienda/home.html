@@ -11,14 +11,13 @@
         <!-- Input de texto -->
         <input type="text" name="q" class="form-control border-0" placeholder="Buscar productos..." value="{{ query }}">
 
-        <!-- Select de categoría
+        <!-- Select de categoría-->
         <select name="categoria" class="form-select border-0" style="max-width: 200px;">
           <option value="">Todas las categorías</option>
           {% for cat in categorias %}
             <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
           {% endfor %}
         </select>
-         -->
 
         <!-- Botón de búsqueda -->
         <button type="submit" class="btn-rose px-4">
@@ -75,11 +74,9 @@
           </div>
 
           <ul class="list-group list-group-flush">
-            <!--
             <li class="list-group-item">
               <i class="bi bi-tags"></i> {{ producto.categoria }}
             </li>
-            -->
             <li class="list-group-item">
               <i class="bi bi-card-text"></i> {{ producto.descripcion }}
             </li>

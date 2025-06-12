@@ -1,4 +1,5 @@
-from .forms import ProductoForm, EditarProductoForm, CategoriaForm
+from django.template.loader import render_to_string
+from .forms import *
 from django.core.paginator import Paginator
 from django.contrib import messages  # Asegúrate de importar esto
 from django.db.models import F, Sum, ExpressionWrapper, DecimalField
@@ -10,6 +11,8 @@ from django.db.models.functions import Substr, Length, Cast
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from .models import Producto, Categoria
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from .forms import ProductoForm
 
 def home(request):
     query = request.GET.get("q", "")
@@ -117,6 +120,39 @@ def editar_producto(request, producto_id):
     return render(request, 'tienda/editar.html', {'form': form, 'producto': producto})
 
 
+@login_required
+def editar_campo_producto(request, producto_id, campo):
+    producto = get_object_or_404(Producto, pk=producto_id)
+
+    if campo not in ProductoForm().fields:
+        return HttpResponseBadRequest("Campo no válido")
+
+    class CampoForm(forms.ModelForm):
+        class Meta:
+            model = Producto
+            fields = [campo]
+
+    if request.method == "POST":
+        form = CampoForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            form.save()
+            # Retornar el fragmento del modal con success=True
+            html_form = render_to_string('tienda/editar_campo_modal.html', {
+                'form': form,
+                'producto': producto,
+                'campo': campo,
+                'success': True,
+            }, request=request)
+            return HttpResponse(status=204)  # ✅ Esto es clave
+
+    else:
+        form = CampoForm(instance=producto)
+
+    return render(request, 'tienda/editar_formulario_campo.html', {
+        'form': form,
+        'producto': producto,
+        'campo': campo,
+    })
 
 
 @login_required
