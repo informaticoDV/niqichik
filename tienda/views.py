@@ -18,7 +18,7 @@ def home(request):
     query = request.GET.get("q", "")
     categoria_id = request.GET.get("categoria", "")
 
-    productos_base = Producto.objects.annotate(
+    productos_base = Producto.objects.filter(visible=True).annotate(
         slug_len=Length("slug"),
         number_part=Cast(
             Substr("slug", Length("slug") - 5, 6),
@@ -270,6 +270,23 @@ def marcar_agotado(request, producto_id):
     next_url = request.POST.get('next', '/')
     return redirect(next_url)
 
+
+@login_required
+def marcar_visible(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id, vendedor=request.user)
+    producto.visible = True
+    producto.save()
+    next_url = request.POST.get('next', '/')
+    return redirect(next_url)
+
+@require_POST
+def marcar_invisible(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    producto.visible = False  # marca como agotado
+    producto.save()
+
+    next_url = request.POST.get('next', '/')
+    return redirect(next_url)
 
 def detalle_producto(request, slug):
     producto = get_object_or_404(Producto, slug=slug)

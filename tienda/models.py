@@ -23,6 +23,7 @@ class Producto(models.Model):
     imagen = CloudinaryField('Producto Original', blank=True, null=True)
     imagen2 = CloudinaryField('Producto Puesto', blank=True, null=True)
     estado = models.BooleanField(default=True)
+    visible = models.BooleanField(default=True)
     vendedor = models.ForeignKey(User, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True, blank=True)
 

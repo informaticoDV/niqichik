@@ -36,8 +36,13 @@ urlpatterns = [
 
 
     path('tienda/<int:producto_id>/eliminar/', views.eliminar_producto, name='eliminar_producto'),
+
     path('producto/<int:producto_id>/agotado/', views.marcar_agotado, name='marcar_agotado'),
     path('producto/<int:producto_id>/disponible/', views.marcar_disponible, name='marcar_disponible'),
+
+    path('producto/<int:producto_id>/invisible/', views.marcar_invisible, name='marcar_invisible'),
+    path('producto/<int:producto_id>/visible/', views.marcar_visible, name='marcar_visible'),
+
     path('producto/<int:producto_id>/vender/', views.vender_producto, name='vender_producto'),
     path('informacion/', views.dashboard, name='dashboard'),
     path('producto/<slug:slug>/', views.detalle_producto, name='detalle_producto'),
