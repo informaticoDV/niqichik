@@ -34,7 +34,7 @@ def home(request):
     if categoria_id:
         productos_base = productos_base.filter(categoria_id=categoria_id)
 
-    productos = productos_base.order_by("number_part")
+    productos = productos_base.order_by("-number_part")
 
     paginator = Paginator(productos, 8)
     page_number = request.GET.get('page')
@@ -48,8 +48,6 @@ def home(request):
         'categorias': categorias,
         'categoria_id': categoria_id,
     })
-
-
 
 def tienda(request):
     query = request.GET.get("q", "")
@@ -71,7 +69,7 @@ def tienda(request):
     if categoria_id:
         productos_base = productos_base.filter(categoria_id=categoria_id)
 
-    productos = productos_base.order_by("number_part")
+    productos = productos_base.order_by("-number_part")
 
     paginator = Paginator(productos, 8)
     page_number = request.GET.get('page')
@@ -85,14 +83,6 @@ def tienda(request):
         'categorias': categorias,
         'categoria_id': categoria_id,
     })
-
-
-
-def buscarProducto(request):
-    productos = Producto.objects.all()
-    return render(request, 'tienda/home.html', {'productos': productos})
-
-
 
 @login_required
 def agregar_producto(request):
@@ -118,7 +108,6 @@ def editar_producto(request, producto_id):
     else:
         form = EditarProductoForm(instance=producto)  # Cambié ProductoForm por EditarProductoForm
     return render(request, 'tienda/editar.html', {'form': form, 'producto': producto})
-
 
 @login_required
 def editar_campo_producto(request, producto_id, campo):
@@ -154,7 +143,6 @@ def editar_campo_producto(request, producto_id, campo):
         'campo': campo,
     })
 
-
 @login_required
 def eliminar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, vendedor=request.user)
@@ -162,7 +150,6 @@ def eliminar_producto(request, producto_id):
         producto.delete()
         return redirect('tienda')
     return render(request, 'tienda/eliminar_confirmacion.html', {'producto': producto})
-
 
 @login_required
 def categoria(request):
@@ -180,7 +167,6 @@ def agregar_categoria(request):
         form = CategoriaForm()
     return render(request, 'tienda/agregar_categoria.html', {'form': form})
 
-
 @login_required
 def eliminar_categoria(request, categoria_id):
     categoria = get_object_or_404(Categoria, id=categoria_id)
@@ -188,8 +174,6 @@ def eliminar_categoria(request, categoria_id):
         categoria.delete()
         return redirect('categoria')
     return render(request, 'tienda/eliminar_confirmacion.html', {'categoria': categoria})
-
-
 
 @login_required
 def vender_producto(request, producto_id):
@@ -208,8 +192,6 @@ def vender_producto(request, producto_id):
         return redirect(next_url)
 
     return render(request, 'tienda/tienda.html', {'producto': producto})
-
-
 
 @login_required
 def dashboard(request):
@@ -231,27 +213,6 @@ def dashboard(request):
     return render(request, 'tienda/dashboard.html', {
         'monto_ganado': ganancia_total,
     })
-
-
-
-@require_POST
-def reiniciar_totales(request):
-    Producto.objects.update(costo=0, vendido=0)
-    return redirect('dashboard')  # o donde muestres el resumen
-
-
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('home')  # redirige a donde tú quieras
-    else:
-        form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
-
-
 
 @login_required
 def marcar_disponible(request, producto_id):
