@@ -3,8 +3,6 @@ from .forms import *
 from django.core.paginator import Paginator
 from django.contrib import messages  # Asegúrate de importar esto
 from django.db.models import F, Sum, ExpressionWrapper, DecimalField
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, IntegerField
 from django.db.models.functions import Substr, Length, Cast
@@ -36,9 +34,21 @@ def home(request):
 
     productos = productos_base.order_by("-number_part")
 
-    paginator = Paginator(productos, 8)
+    paginator = Paginator(productos, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    # Calcular el rango de páginas (máximo 6)
+    current_page = page_obj.number
+    total_pages = paginator.num_pages
+
+    start_page = max(current_page - 2, 1)
+    end_page = start_page + 6
+    if end_page > total_pages:
+        end_page = total_pages
+        start_page = max(end_page - 6, 1)
+
+    page_range_custom = range(start_page, end_page + 1)
 
     categorias = Categoria.objects.all()  # Traemos las categorías para el filtro
 
@@ -47,6 +57,7 @@ def home(request):
         'query': query,
         'categorias': categorias,
         'categoria_id': categoria_id,
+        'page_range_custom': page_range_custom,  # <--- nuevo
     })
 
 def tienda(request):
@@ -71,9 +82,21 @@ def tienda(request):
 
     productos = productos_base.order_by("-number_part")
 
-    paginator = Paginator(productos, 8)
+    paginator = Paginator(productos, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    # Calcular el rango de páginas (máximo 6)
+    current_page = page_obj.number
+    total_pages = paginator.num_pages
+
+    start_page = max(current_page - 2, 1)
+    end_page = start_page + 6
+    if end_page > total_pages:
+        end_page = total_pages
+        start_page = max(end_page - 6, 1)
+
+    page_range_custom = range(start_page, end_page + 1)
 
     categorias = Categoria.objects.all()  # Traemos las categorías para el filtro
 
@@ -82,6 +105,7 @@ def tienda(request):
         'query': query,
         'categorias': categorias,
         'categoria_id': categoria_id,
+        'page_range_custom': page_range_custom,  # <--- nuevo
     })
 
 @login_required
@@ -230,7 +254,6 @@ def marcar_agotado(request, producto_id):
 
     next_url = request.POST.get('next', '/')
     return redirect(next_url)
-
 
 @login_required
 def marcar_visible(request, producto_id):
