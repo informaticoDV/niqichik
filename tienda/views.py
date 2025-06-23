@@ -11,10 +11,12 @@ from django.views.decorators.http import require_POST
 from .models import Producto, Categoria
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from .forms import ProductoForm
+from .carrito import Carrito
 
 def home(request):
     query = request.GET.get("q", "")
     categoria_id = request.GET.get("categoria", "")
+    disponible = request.GET.get("disponible", "")
 
     productos_base = Producto.objects.filter(visible=True).annotate(
         slug_len=Length("slug"),
@@ -31,6 +33,10 @@ def home(request):
 
     if categoria_id:
         productos_base = productos_base.filter(categoria_id=categoria_id)
+
+    if disponible == "1":
+        productos_base = productos_base.filter(estado=True)  # suponiendo que 'estado=True' significa disponible
+
 
     productos = productos_base.order_by("-number_part")
 
@@ -57,12 +63,14 @@ def home(request):
         'query': query,
         'categorias': categorias,
         'categoria_id': categoria_id,
+        'disponible': disponible,  # <-- aquí
         'page_range_custom': page_range_custom,  # <--- nuevo
     })
 
 def tienda(request):
     query = request.GET.get("q", "")
     categoria_id = request.GET.get("categoria", "")
+    disponible = request.GET.get("disponible", "")
 
     productos_base = Producto.objects.annotate(
         slug_len=Length("slug"),
@@ -79,6 +87,10 @@ def tienda(request):
 
     if categoria_id:
         productos_base = productos_base.filter(categoria_id=categoria_id)
+
+
+    if disponible == "1":
+        productos_base = productos_base.filter(estado=True)  # suponiendo que 'estado=True' significa disponible
 
     productos = productos_base.order_by("-number_part")
 
@@ -105,6 +117,7 @@ def tienda(request):
         'query': query,
         'categorias': categorias,
         'categoria_id': categoria_id,
+        'disponible': disponible,  # <-- aquí
         'page_range_custom': page_range_custom,  # <--- nuevo
     })
 
@@ -279,3 +292,50 @@ def detalle_producto(request, slug):
         'producto': producto,
         'url_absoluta': url_absoluta,
     })
+
+from django.shortcuts import redirect
+from django.urls import reverse
+
+def agregar_al_carrito(request, producto_id):
+    carrito = Carrito(request)
+    producto = get_object_or_404(Producto, id=producto_id)
+    carrito.agregar(producto)
+
+    # Redirige a la misma página desde la que vino el usuario
+    messages.success(request, f"{producto.nombre} fue añadido al carrito.")
+    return redirect(request.META.get("HTTP_REFERER", reverse("home")))
+
+
+
+def eliminar_del_carrito(request, producto_id):
+    carrito = Carrito(request)
+    producto = get_object_or_404(Producto, id=producto_id)
+    carrito.eliminar(producto)
+    return redirect("ver_carrito")
+
+def ver_carrito(request):
+    carrito = request.session.get("carrito", {})
+    total = sum(float(item["precio"]) * item["cantidad"] for item in carrito.values())
+    return render(request, "tienda/carrito.html", {
+        "carrito": carrito,
+        "total": total
+    })
+
+from django.http import JsonResponse
+from .carrito import Carrito
+from .models import Producto
+
+def ajax_agregar_al_carrito(request):
+    if request.method == "POST":
+        producto_id = request.POST.get("producto_id")
+        producto = Producto.objects.get(id=producto_id)
+        carrito = Carrito(request)
+        carrito.agregar(producto)
+        return JsonResponse({"ok": True, "nombre": producto.nombre})
+    return JsonResponse({"ok": False}, status=400)
+
+
+def obtener_total_carrito(request):
+    carrito = request.session.get("carrito", {})
+    total_items = sum(item["cantidad"] for item in carrito.values())
+    return JsonResponse({"total": total_items})

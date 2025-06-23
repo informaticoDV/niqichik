@@ -1,6 +1,31 @@
 {% include "tienda/Menu.html" %}
 {% load static %}
 {% load custom_filters %}
+<style>
+  .btn-rose {
+    background-color: #880e4f;
+    color: white;
+    border-color: #880e4f;
+  }
+  .btn-rose:hover,
+  .btn-rose:focus {
+    background-color: #6d0a3f;
+    border-color: #6d0a3f;
+    color: white;
+  }
+
+  .btn-outline-rose {
+    color: #880e4f;
+    border-color: #880e4f;
+    background-color: transparent;
+  }
+  .btn-outline-rose:hover,
+  .btn-outline-rose:focus {
+    color: white;
+    background-color: #880e4f;
+    border-color: #880e4f;
+  }
+</style>
 
 <body>
 <div class="contenido">
@@ -8,25 +33,52 @@
   <div class="container">
     <form method="GET" class="mb-4">
       <div class="input-group rounded-pill shadow-sm overflow-hidden">
-        <!-- Input de texto -->
         <input type="text" name="q" class="form-control border-0" placeholder="Buscar productos..." value="{{ query }}">
-
-        <!-- Select de categoría-->
-        <select name="categoria" class="form-select border-0" style="max-width: 200px;">
-          <option value="">Todas las categorías</option>
-          {% for cat in categorias %}
-            <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
-          {% endfor %}
-        </select>
-
-        <!-- Botón de búsqueda -->
         <button type="submit" class="btn-rose px-4">
           <i class="bi bi-search"></i>
         </button>
       </div>
+      {% if disponible == '1' %}
+      <input type="hidden" name="disponible" value="1">
+      {% endif %}
     </form>
+    <!-- Filtros -->
+    <div class="mb-4 d-flex flex-wrap gap-2 align-items-center">
+
+      <!-- Botón Todas las categorías -->
+      <a href="?{% if query %}q={{ query }}&{% endif %}{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
+         class="btn {% if not categoria_id %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+        Todas las categorías
+      </a>
+      <!-- Botón Disponible -->
+      <a href="?{% if query %}q={{ query }}&{% endif %}disponible=1"
+         class="btn {% if disponible|stringformat:'s' == '1' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+        Disponible
+      </a>
+
+      <!-- Botones categorías -->
+      {% for cat in categorias %}
+      <a href="?{% if query %}q={{ query }}&{% endif %}categoria={{ cat.id }}&{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
+         class="btn {% if categoria_id == cat.id|stringformat:'s' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+        {{ cat.nombre }}
+      </a>
+      {% endfor %}
+    </div>
 
 
+
+
+
+{% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 
     <div class="row justify-content-center">
       {% for producto in page_obj %}
@@ -94,6 +146,19 @@
                 </div>
               {% endif %}
             </li>
+
+            <li class="list-group-item" align="center">
+             <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="button" class="btn btn-sm btn-burdeo btn-agregar-carrito"
+                    data-producto-id="{{ producto.id }}">
+              <i class="bi bi-cart-plus"></i> Añadir
+            </button>
+
+            </form>
+            </li>
+
+
             <div class="card-footer text-center">
               <a href="https://api.whatsapp.com/send?text={{ '✨ ¡Mira este producto de Niqi-Chik! ✨🛍️ ' | add:'https://www.niqichik.com/producto/' | add:producto.slug | urlencode }}"
                  class="btn rounded-pill shadow d-inline-flex align-items-center gap-2 px-3 py-2 transition"
@@ -111,6 +176,7 @@
       {% endfor %}
     </div>
   </div>
+
 
   <!-- Paginación -->
 <nav aria-label="Paginación de productos">
@@ -196,12 +262,75 @@
   </div>
 
 
-  <!-- Scripts -->
-  <script>
-    function confirmarEliminacion() {
-      return confirm("¿Estás seguro que deseas eliminar este producto?");
+<div id="alerta-carrito" class="alert alert-success text-center" style="display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); z-index: 1050;">
+  Producto añadido al carrito.
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const botones = document.querySelectorAll(".btn-agregar-carrito");
+    botones.forEach(boton => {
+      boton.addEventListener("click", function () {
+        const productoId = this.getAttribute("data-producto-id");
+
+        fetch("{% url 'ajax_agregar_al_carrito' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `producto_id=${productoId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            mostrarAlerta(`✔ ${data.nombre} añadido al carrito`);
+            actualizarContadorCarrito();
+          }
+        });
+      });
+    });
+
+    // Cargar contador al iniciar
+    actualizarContadorCarrito();
+
+    function mostrarAlerta(mensaje) {
+      const alerta = document.getElementById("alerta-carrito");
+      alerta.innerHTML = `
+        ${mensaje} <br>
+        <a href="{% url 'ver_carrito' %}" class="btn btn-sm btn-light mt-2">🛒 Ver carrito</a>
+      `;
+      alerta.style.display = "block";
+      setTimeout(() => {
+        alerta.style.display = "none";
+        alerta.innerHTML = "";
+      }, 3000);
     }
 
+    function actualizarContadorCarrito() {
+      fetch("{% url 'obtener_total_carrito' %}")
+        .then(response => response.json())
+        .then(data => {
+          const contador = document.getElementById("contador-carrito");
+          if (contador) {
+            contador.textContent = data.total;
+          }
+        });
+    }
+
+    // Eliminar producto con confirmación y actualización del contador
+    const eliminarLinks = document.querySelectorAll(".btn-eliminar-carrito");
+    eliminarLinks.forEach(link => {
+      link.addEventListener("click", function (e) {
+        if (!confirm("¿Estás seguro que deseas eliminar este producto?")) {
+          e.preventDefault();
+        } else {
+          setTimeout(() => actualizarContadorCarrito(), 500);
+        }
+      });
+    });
+
+    // Modal de imágenes
     const imagenModal = document.getElementById('imagenModal');
     const imagenModalSrc = document.getElementById('imagenModalSrc');
     const prevBtn = document.getElementById('prevImage');
@@ -210,13 +339,11 @@
     let currentImageIndex = 0;
     let imageUrls = [];
 
-    // Captura todas las imágenes clickeables
     const allImgElements = document.querySelectorAll('.img-clickable');
     allImgElements.forEach(img => {
       imageUrls.push(img.getAttribute('data-img-url'));
     });
 
-    // Mostrar imagen en el modal
     imagenModal.addEventListener('show.bs.modal', function (event) {
       const trigger = event.relatedTarget;
       const url = trigger.getAttribute('data-img-url');
@@ -224,18 +351,18 @@
       imagenModalSrc.src = url;
     });
 
-    // Botón anterior
     prevBtn.addEventListener('click', () => {
       currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
       imagenModalSrc.src = imageUrls[currentImageIndex];
     });
 
-    // Botón siguiente
     nextBtn.addEventListener('click', () => {
       currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
       imagenModalSrc.src = imageUrls[currentImageIndex];
     });
-  </script>
+  });
+</script>
+
 </div>
 
 </body>

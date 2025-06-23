@@ -28,3 +28,10 @@ def getitem(obj, key):
         return obj[key]  # esto sí funciona con forms
     except (KeyError, TypeError, AttributeError):
         return ''
+
+@register.filter
+def multiply(value, arg):
+    try:
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return 0

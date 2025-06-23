@@ -1,0 +1,207 @@
+{% include "tienda/Menu.html" %}
+{% load static %}
+{% load custom_filters %}
+
+<style>
+  .carrito-titulo {
+    color: #880e4f;
+    font-weight: bold;
+  }
+
+  .tabla-carrito thead {
+    background-color: #880e4f;
+    color: white;
+  }
+
+  .tabla-carrito tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+
+  .btn-burdeo {
+    background-color: #880e4f;
+    border: none;
+    color: white;
+    transition: all 0.2s ease;
+  }
+
+  .btn-burdeo:hover {
+    background-color: #a2185b;
+    color: white;
+  }
+
+  .total-carrito {
+    font-size: 1.2rem;
+    color: #880e4f;
+    font-weight: bold;
+  }
+
+  .btn-burdeo-outline {
+    color: #880e4f;
+    border: 1px solid #880e4f;
+    background-color: transparent;
+    transition: all 0.2s ease;
+  }
+
+  .btn-burdeo-outline:hover {
+    background-color: #880e4f;
+    color: white;
+  }
+</style>
+
+<body>
+<div class="contenido">
+  <br>
+  <div class="container">
+    <h2 class="text-center mt-4 carrito-titulo">🛒 Tu Carrito</h2>
+
+    <div class="container mt-3">
+      {% if carrito %}
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover text-center tabla-carrito shadow-sm rounded">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key, item in carrito.items %}
+                <tr>
+                  <td><img src="{{ item.imagen }}" width="60" class="rounded"></td>
+                  <td>{{ item.nombre }}</td>
+                  <td>${{ item.precio }}</td>
+                  <td>{{ item.cantidad }}</td>
+                  <td>${{ item.cantidad|multiply:item.precio }}</td>
+                  <td>
+                    <a href="{% url 'eliminar_del_carrito' key %}" class="btn btn-sm btn-burdeo-outline" title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+              <tr class="bg-light">
+                <td colspan="4" class="text-end total-carrito">Total:</td>
+                <td colspan="2" class="text-start total-carrito">${{ total }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!--
+        <div class="text-end">
+          <a href="{% url 'home' %}" class="btn btn-sm btn-burdeo-outline">← Seguir comprando</a>
+          <button class="btn btn-sm btn-burdeo">Finalizar compra</button>
+        </div>
+        --->
+      {% else %}
+        <p class="text-center text-muted mt-5">Tu carrito está vacío.</p>
+        <div class="text-center">
+          <a href="{% url 'home' %}" class="btn btn-sm btn-burdeo mt-3">← Ir a la tienda</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const botones = document.querySelectorAll(".btn-agregar-carrito");
+    botones.forEach(boton => {
+      boton.addEventListener("click", function () {
+        const productoId = this.getAttribute("data-producto-id");
+
+        fetch("{% url 'ajax_agregar_al_carrito' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `producto_id=${productoId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            mostrarAlerta(`✔ ${data.nombre} añadido al carrito`);
+            actualizarContadorCarrito();
+          }
+        });
+      });
+    });
+
+    // Cargar contador al iniciar
+    actualizarContadorCarrito();
+
+    function mostrarAlerta(mensaje) {
+      const alerta = document.getElementById("alerta-carrito");
+      alerta.innerHTML = `
+        ${mensaje} <br>
+        <a href="{% url 'ver_carrito' %}" class="btn btn-sm btn-light mt-2">🛒 Ver carrito</a>
+      `;
+      alerta.style.display = "block";
+      setTimeout(() => {
+        alerta.style.display = "none";
+        alerta.innerHTML = "";
+      }, 3000);
+    }
+
+    function actualizarContadorCarrito() {
+      fetch("{% url 'obtener_total_carrito' %}")
+        .then(response => response.json())
+        .then(data => {
+          const contador = document.getElementById("contador-carrito");
+          if (contador) {
+            contador.textContent = data.total;
+          }
+        });
+    }
+
+    // Eliminar producto con confirmación y actualización del contador
+    const eliminarLinks = document.querySelectorAll(".btn-eliminar-carrito");
+    eliminarLinks.forEach(link => {
+      link.addEventListener("click", function (e) {
+        if (!confirm("¿Estás seguro que deseas eliminar este producto?")) {
+          e.preventDefault();
+        } else {
+          setTimeout(() => actualizarContadorCarrito(), 500);
+        }
+      });
+    });
+
+    // Modal de imágenes
+    const imagenModal = document.getElementById('imagenModal');
+    const imagenModalSrc = document.getElementById('imagenModalSrc');
+    const prevBtn = document.getElementById('prevImage');
+    const nextBtn = document.getElementById('nextImage');
+
+    let currentImageIndex = 0;
+    let imageUrls = [];
+
+    const allImgElements = document.querySelectorAll('.img-clickable');
+    allImgElements.forEach(img => {
+      imageUrls.push(img.getAttribute('data-img-url'));
+    });
+
+    imagenModal.addEventListener('show.bs.modal', function (event) {
+      const trigger = event.relatedTarget;
+      const url = trigger.getAttribute('data-img-url');
+      currentImageIndex = imageUrls.indexOf(url);
+      imagenModalSrc.src = url;
+    });
+
+    prevBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
+      imagenModalSrc.src = imageUrls[currentImageIndex];
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
+      imagenModalSrc.src = imageUrls[currentImageIndex];
+    });
+  });
+</script>
+
+</body>
+
+{% include "tienda/Footer.html" %}

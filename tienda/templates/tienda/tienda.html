@@ -1,30 +1,68 @@
 {% include "tienda/Menu.html" %}
 {% load static %}
 {% load custom_filters %}
+<style>
+  .btn-rose {
+    background-color: #880e4f;
+    color: white;
+    border-color: #880e4f;
+  }
+  .btn-rose:hover,
+  .btn-rose:focus {
+    background-color: #6d0a3f;
+    border-color: #6d0a3f;
+    color: white;
+  }
 
+  .btn-outline-rose {
+    color: #880e4f;
+    border-color: #880e4f;
+    background-color: transparent;
+  }
+  .btn-outline-rose:hover,
+  .btn-outline-rose:focus {
+    color: white;
+    background-color: #880e4f;
+    border-color: #880e4f;
+  }
+</style>
 <body>
 <div class="contenido">
   <br>
   <div class="container">
     <form method="GET" class="mb-4">
       <div class="input-group rounded-pill shadow-sm overflow-hidden">
-        <!-- Input de texto -->
         <input type="text" name="q" class="form-control border-0" placeholder="Buscar productos..." value="{{ query }}">
-
-        <!-- Select de categoría -->
-        <select name="categoria" class="form-select border-0" style="max-width: 200px;">
-          <option value="">Todas las categorías</option>
-          {% for cat in categorias %}
-            <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
-          {% endfor %}
-        </select>
-
-        <!-- Botón de búsqueda -->
         <button type="submit" class="btn-rose px-4">
           <i class="bi bi-search"></i>
         </button>
       </div>
+      {% if disponible == '1' %}
+      <input type="hidden" name="disponible" value="1">
+      {% endif %}
     </form>
+    <!-- Filtros -->
+    <div class="mb-4 d-flex flex-wrap gap-2 align-items-center">
+
+      <!-- Botón Todas las categorías -->
+      <a href="?{% if query %}q={{ query }}&{% endif %}{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
+         class="btn {% if not categoria_id %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+        Todas las categorías
+      </a>
+      <!-- Botón Disponible -->
+      <a href="?{% if query %}q={{ query }}&{% endif %}disponible=1"
+         class="btn {% if disponible|stringformat:'s' == '1' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+        Disponible
+      </a>
+
+      <!-- Botones categorías -->
+      {% for cat in categorias %}
+      <a href="?{% if query %}q={{ query }}&{% endif %}categoria={{ cat.id }}&{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
+         class="btn {% if categoria_id == cat.id|stringformat:'s' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+        {{ cat.nombre }}
+      </a>
+      {% endfor %}
+    </div>
 
     <div class="row justify-content-center">
       {% for producto in page_obj %}
