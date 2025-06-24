@@ -72,6 +72,7 @@ def tienda(request):
     query = request.GET.get("q", "")
     categoria_id = request.GET.get("categoria", "")
     disponible = request.GET.get("disponible", "")
+    visible = request.GET.get("visible", "")
 
     productos_base = Producto.objects.annotate(
         slug_len=Length("slug"),
@@ -91,7 +92,10 @@ def tienda(request):
 
 
     if disponible == "1":
-        productos_base = productos_base.filter(estado=True)  # suponiendo que 'estado=True' significa disponible
+        productos_base = productos_base.filter(estado=True)
+
+    if visible == "1":
+        productos_base = productos_base.filter(visible=True)
 
     productos = productos_base.order_by("-number_part")
 
@@ -118,8 +122,9 @@ def tienda(request):
         'query': query,
         'categorias': categorias,
         'categoria_id': categoria_id,
-        'disponible': disponible,  # <-- aquí
-        'page_range_custom': page_range_custom,  # <--- nuevo
+        'disponible': disponible,
+        'visible': visible,
+        'page_range_custom': page_range_custom,
     })
 
 @login_required
