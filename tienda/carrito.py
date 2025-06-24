@@ -16,6 +16,7 @@ class Carrito:
                 "precio": str(producto.precio),
                 "cantidad": 1,
                 "imagen": producto.imagen.url if producto.imagen else "",
+                "codigo": producto.codigo,  # ✅ AÑADE ESTA LÍNEA
             }
         else:
             self.carrito[producto_id]["cantidad"] += 1

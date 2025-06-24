@@ -22,6 +22,39 @@
 
     </div>
 
+    <div class="text-center my-3">
+  <form method="POST" action="{% url 'guardar_informacion' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success rounded-pill">
+      <i class="bi bi-save2 me-1"></i> Guardar información
+    </button>
+  </form>
+</div>
+
+    {% if historial %}
+<div class="mt-5">
+  <h4 class="text-center mb-3">Historial de Ganancias Guardadas</h4>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered table-hover text-center">
+      <thead class="table-light">
+        <tr>
+          <th>Fecha</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for registro in historial %}
+        <tr>
+          <td>{{ registro.fecha_venta|date:"d/m/Y H:i" }}</td>
+          <td>{{ registro.precio|formato_chileno }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
 </div>
 </div>
 </div>

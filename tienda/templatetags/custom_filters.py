@@ -6,8 +6,10 @@ register = template.Library()
 @register.filter
 def formato_chileno(valor):
     try:
-        valor = int(valor)
-        return "${:,}".format(valor).replace(",", ".")
+        valor = float(valor)
+        entero = int(valor)
+        decimales = int(round((valor - entero) * 100))
+        return "${:,}".format(entero).replace(",", ".") + (f",{decimales:02d}" if decimales else "")
     except (ValueError, TypeError):
         return valor
 

@@ -31,7 +31,7 @@ urlpatterns = [
     path("carrito/eliminar/<int:producto_id>/", views.eliminar_del_carrito, name="eliminar_del_carrito"),
     path("carrito/ajax/agregar/", views.ajax_agregar_al_carrito, name="ajax_agregar_al_carrito"),
     path("carrito/ajax/total/", views.obtener_total_carrito, name="obtener_total_carrito"),
-
+    path('guardar-informacion/', views.guardar_informacion, name='guardar_informacion'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

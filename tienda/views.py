@@ -44,6 +44,7 @@ def home(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+
     # Calcular el rango de páginas (máximo 6)
     current_page = page_obj.number
     total_pages = paginator.num_pages
@@ -234,22 +235,48 @@ def vender_producto(request, producto_id):
 def dashboard(request):
     productos = Producto.objects.filter(vendedor=request.user)
 
-    # Calcula ganancia = (precio) * vendidos
     ganancia_total = productos.annotate(
-        ganancia_unitaria=ExpressionWrapper(
-            F('precio'),
-            output_field=DecimalField(max_digits=10, decimal_places=2)
-        ),
         ganancia_total=ExpressionWrapper(
-            ((F('precio') * F('vendidos'))),
+            F('precio') * F('vendidos'),
             output_field=DecimalField(max_digits=10, decimal_places=2)
         )
     ).aggregate(total=Sum('ganancia_total'))['total'] or 0
 
+    historial = Informacion.objects.filter(vendedor=request.user).order_by('-fecha_venta')
 
     return render(request, 'tienda/dashboard.html', {
         'monto_ganado': ganancia_total,
+        'historial': historial
     })
+
+
+from django.utils import timezone
+from .models import Informacion
+
+@login_required
+def guardar_informacion(request):
+    productos = Producto.objects.filter(vendedor=request.user)
+
+    ganancia_total = productos.annotate(
+        ganancia_total=ExpressionWrapper(
+            F('precio') * F('vendidos'),
+            output_field=DecimalField(max_digits=10, decimal_places=2)
+        )
+    ).aggregate(total=Sum('ganancia_total'))['total'] or 0
+
+    if ganancia_total > 0:
+        Informacion.objects.create(
+            precio=ganancia_total,
+            producto=productos.first(),  # Asocia cualquiera
+            vendedor=request.user
+        )
+
+        # Reiniciar contador de ventas
+        productos.update(vendidos=0)
+
+    return redirect('dashboard')
+
+
 
 @login_required
 def marcar_disponible(request, producto_id):
@@ -313,13 +340,34 @@ def eliminar_del_carrito(request, producto_id):
     carrito.eliminar(producto)
     return redirect("ver_carrito")
 
+
 def ver_carrito(request):
     carrito = request.session.get("carrito", {})
-    total = sum(float(item["precio"]) * item["cantidad"] for item in carrito.values())
+    texto_compartir = "✨ Mi carrito en Niqi-Chik: ✨\n"
+    total = 0
+    for item in carrito.values():
+        codigo = item.get('codigo', '')
+        nombre = item.get('nombre', '')
+        cantidad = int(item.get('cantidad', 0))  # convertir a int
+        precio = float(item.get('precio', 0))    # convertir a float
+
+        subtotal = cantidad * precio
+        total += subtotal
+        texto_compartir += f"• {codigo} || {nombre} x{cantidad} = ${subtotal:.2f}\n"  # formato 2 decimales
+
+    texto_compartir += f"Total: ${total:.2f}"
+
+    import urllib.parse
+    texto_compartir_url = urllib.parse.quote(texto_compartir)
+
     return render(request, "tienda/carrito.html", {
         "carrito": carrito,
-        "total": total
+        "total": total,
+        'texto_compartir': texto_compartir_url,
     })
+
+
+
 
 from django.http import JsonResponse
 from .carrito import Carrito

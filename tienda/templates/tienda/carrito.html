@@ -50,8 +50,6 @@
 
 <body>
 <div class="contenido">
-  <br>
-  <div class="container">
     <h2 class="text-center mt-4 carrito-titulo">🛒 Tu Carrito</h2>
 
     <div class="container mt-3">
@@ -60,6 +58,7 @@
           <table class="table table-bordered table-hover text-center tabla-carrito shadow-sm rounded">
             <thead>
               <tr>
+                <th>Codigo</th>
                 <th>Imagen</th>
                 <th>Nombre</th>
                 <th>Precio</th>
@@ -71,11 +70,13 @@
             <tbody>
               {% for key, item in carrito.items %}
                 <tr>
+                  <td>{{ item.codigo }}</td>
                   <td><img src="{{ item.imagen }}" width="60" class="rounded"></td>
                   <td>{{ item.nombre }}</td>
-                  <td>${{ item.precio }}</td>
+                  <td>{{ item.precio|formato_chileno }}</td>
                   <td>{{ item.cantidad }}</td>
-                  <td>${{ item.cantidad|multiply:item.precio }}</td>
+                  <td>{{ item.cantidad|multiply:item.precio|formato_chileno }}</td>
+
                   <td>
                     <a href="{% url 'eliminar_del_carrito' key %}" class="btn btn-sm btn-burdeo-outline" title="Eliminar">
                       <i class="bi bi-trash"></i>
@@ -85,7 +86,7 @@
               {% endfor %}
               <tr class="bg-light">
                 <td colspan="4" class="text-end total-carrito">Total:</td>
-                <td colspan="2" class="text-start total-carrito">${{ total }}</td>
+                <td colspan="2" class="text-start total-carrito">{{ total|formato_chileno }}</td>
               </tr>
             </tbody>
           </table>
@@ -96,6 +97,14 @@
           <button class="btn btn-sm btn-burdeo">Finalizar compra</button>
         </div>
         --->
+        {% if carrito %}
+          <div class="text-center mt-3">
+            <a href="https://api.whatsapp.com/send?text={{ texto_compartir }}" target="_blank" class="btn btn-success">
+              <i class="bi bi-whatsapp"></i> Compartir carrito por WhatsApp
+            </a>
+          </div>
+        {% endif %}
+
       {% else %}
         <p class="text-center text-muted mt-5">Tu carrito está vacío.</p>
         <div class="text-center">
@@ -103,7 +112,6 @@
         </div>
       {% endif %}
     </div>
-  </div>
 </div>
 <script>
   document.addEventListener("DOMContentLoaded", function () {

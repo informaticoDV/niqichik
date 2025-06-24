@@ -43,19 +43,17 @@
       {% endif %}
     </form>
     <!-- Filtros -->
-    <div class="mb-4 d-flex flex-wrap gap-2 align-items-center">
-
+    <div class="mb-4 d-flex flex-wrap gap-2 justify-content-center align-items-center text-sm" style="font-size: 0.85rem;">
+      <!-- Botón Disponible -->
+      <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_id %}categoria={{ categoria_id }}&{% endif %}{% if disponible != '1' %}disponible=1{% endif %}"
+         class="btn {% if disponible|stringformat:'s' == '1' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+        Disponible
+      </a>
       <!-- Botón Todas las categorías -->
       <a href="?{% if query %}q={{ query }}&{% endif %}{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
          class="btn {% if not categoria_id %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
         Todas las categorías
       </a>
-      <!-- Botón Disponible -->
-      <a href="?{% if query %}q={{ query }}&{% endif %}disponible=1"
-         class="btn {% if disponible|stringformat:'s' == '1' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
-        Disponible
-      </a>
-
       <!-- Botones categorías -->
       {% for cat in categorias %}
       <a href="?{% if query %}q={{ query }}&{% endif %}categoria={{ cat.id }}&{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
@@ -64,6 +62,7 @@
       </a>
       {% endfor %}
     </div>
+
 
 
 
@@ -147,16 +146,13 @@
               {% endif %}
             </li>
 
-            <li class="list-group-item" align="center">
-             <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" class="d-inline">
-              {% csrf_token %}
-              <button type="button" class="btn btn-sm btn-burdeo btn-agregar-carrito"
-                    data-producto-id="{{ producto.id }}">
+            <button type="button"
+                    class="btn btn-sm btn-burdeo btn-agregar-carrito"
+                    data-producto-id="{{ producto.id }}"
+                    {% if not producto.estado %}disabled style="opacity: 0.6; cursor: not-allowed;"{% endif %}>
               <i class="bi bi-cart-plus"></i> Añadir
             </button>
 
-            </form>
-            </li>
 
 
             <div class="card-footer text-center">
@@ -187,7 +183,7 @@
       <li class="page-item">
         <a class="page-link rounded-circle mx-1"
            style="color: #880e4f;"
-           href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
+           href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}"
            aria-label="Anterior">
           <span aria-hidden="true">&laquo;</span>
         </a>
@@ -211,7 +207,7 @@
         <li class="page-item">
           <a class="page-link rounded-circle mx-1"
              style="color: #880e4f; border-color: #880e4f;"
-             href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">
+             href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}">
             {{ num }}
           </a>
         </li>
@@ -223,7 +219,7 @@
       <li class="page-item">
         <a class="page-link rounded-circle mx-1"
            style="color: #880e4f;"
-           href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
+           href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}"
            aria-label="Siguiente">
           <span aria-hidden="true">&raquo;</span>
         </a>
@@ -236,6 +232,7 @@
 
   </ul>
 </nav>
+
 
 
 
