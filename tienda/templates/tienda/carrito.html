@@ -51,33 +51,35 @@
 <body>
 <div class="contenido">
     <h2 class="text-center mt-4 carrito-titulo">🛒 Tu Carrito</h2>
-
     <div class="container mt-3">
       {% if carrito %}
         <div class="table-responsive">
           <table class="table table-bordered table-hover text-center tabla-carrito shadow-sm rounded">
             <thead>
               <tr>
-                <th>Codigo</th>
+                <th class="d-none d-md-table-cell">Código</th>
                 <th>Imagen</th>
                 <th>Nombre</th>
-                <th>Precio</th>
-                <th>Cantidad</th>
-                <th>Total</th>
-                <th>Acción</th>
+                <th class="d-none d-sm-table-cell">Precio</th>
+                <th>Cant.</th>
+                <th class="d-none d-sm-table-cell">Total</th>
+                <th class="d-none d-md-table-cell">Acción</th>
               </tr>
             </thead>
             <tbody>
               {% for key, item in carrito.items %}
                 <tr>
-                  <td>{{ item.codigo }}</td>
-                  <td><img src="{{ item.imagen }}" width="60" class="rounded"></td>
-                  <td>{{ item.nombre }}</td>
-                  <td>{{ item.precio|formato_chileno }}</td>
-                  <td>{{ item.cantidad }}</td>
-                  <td>{{ item.cantidad|multiply:item.precio|formato_chileno }}</td>
-
+                  <td class="d-none d-md-table-cell">{{ item.codigo }}</td>
                   <td>
+                    <img src="{{ item.imagen }}" width="50" class="rounded img-fluid">
+                  </td>
+                  <td>{{ item.nombre }}</td>
+                  <td class="d-none d-sm-table-cell">{{ item.precio|formato_chileno }}</td>
+                  <td>{{ item.cantidad }}</td>
+                  <td class="d-none d-sm-table-cell">
+                    {{ item.cantidad|multiply:item.precio|formato_chileno }}
+                  </td>
+                  <td class="d-none d-md-table-cell">
                     <a href="{% url 'eliminar_del_carrito' key %}" class="btn btn-sm btn-burdeo-outline" title="Eliminar">
                       <i class="bi bi-trash"></i>
                     </a>
@@ -86,24 +88,17 @@
               {% endfor %}
               <tr class="bg-light">
                 <td colspan="4" class="text-end total-carrito">Total:</td>
-                <td colspan="2" class="text-start total-carrito">{{ total|formato_chileno }}</td>
+                <td colspan="3" class="text-start total-carrito">{{ total|formato_chileno }}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <!--
-        <div class="text-end">
-          <a href="{% url 'home' %}" class="btn btn-sm btn-burdeo-outline">← Seguir comprando</a>
-          <button class="btn btn-sm btn-burdeo">Finalizar compra</button>
+
+        <div class="text-center mt-3">
+          <a href="https://api.whatsapp.com/send?text={{ texto_compartir }}" target="_blank" class="btn btn-success">
+            <i class="bi bi-whatsapp"></i> Compartir carrito por WhatsApp
+          </a>
         </div>
-        --->
-        {% if carrito %}
-          <div class="text-center mt-3">
-            <a href="https://api.whatsapp.com/send?text={{ texto_compartir }}" target="_blank" class="btn btn-success">
-              <i class="bi bi-whatsapp"></i> Compartir carrito por WhatsApp
-            </a>
-          </div>
-        {% endif %}
 
       {% else %}
         <p class="text-center text-muted mt-5">Tu carrito está vacío.</p>
