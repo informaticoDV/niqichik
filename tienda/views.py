@@ -83,7 +83,7 @@ def tienda(request):
 
     if query:
         productos_base = productos_base.filter(
-            Q(nombre__icontains=query) | Q(descripcion__icontains=query)
+            Q(nombre__icontains=query) | Q(descripcion__icontains=query)| Q(slug__icontains=query)
         )
 
     if categoria_id:
