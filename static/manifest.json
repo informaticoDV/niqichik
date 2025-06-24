@@ -1,0 +1,20 @@
+{
+  "name": "Niqi-Chik",
+  "short_name": "NiqiChik",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#880e4f",
+  "icons": [
+    {
+      "src": "/static/Productos/Icono.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/Productos/Icono.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
