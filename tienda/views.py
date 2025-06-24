@@ -127,6 +127,17 @@ def tienda(request):
         'page_range_custom': page_range_custom,
     })
 
+
+# tienda/views.py
+
+from django.shortcuts import render
+
+def mi_error_404(request, exception):
+    # Puedes pasar contexto si quieres, aquí va vacío
+    return render(request, 'errors/404.html', status=404)
+
+
+
 @login_required
 def agregar_producto(request):
     if request.method == 'POST':
