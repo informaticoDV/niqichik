@@ -154,6 +154,17 @@
             </button>
 
 
+     <button type="button"
+        class="btn btn-sm btn-outline-danger btn-like"
+        data-producto-id="{{ producto.id }}">
+  ❤️ <span class="like-count">Me gusta</span>
+       <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+</button>
+
+
+
+
 
             <div class="card-footer text-center">
               <a href="https://api.whatsapp.com/send?text={{ '✨ ¡Mira este producto de Niqi-Chik! ✨🛍️ ' | add:'https://www.niqichik.com/producto/' | add:producto.slug | urlencode }}"
@@ -161,7 +172,9 @@
                  target="_blank"
                  style="background-color: #880e4f; border-color: #880e4f; color: white; transition: all 0.3s ease;">
                  <i class="bi bi-whatsapp fs-7"></i> Compartir
+
               </a>
+
             </div>
 
 
@@ -264,6 +277,28 @@
 </div>
 
 <script>
+
+  document.querySelectorAll('.btn-like').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const productoId = this.dataset.productoId;
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      fetch(`/like/${productoId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Accept': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const likeCountSpan = this.querySelector('.like-count');
+        likeCountSpan.textContent = data.liked ? ' ' : 'Me gusta';
+        // Opcional: actualizar contador numérico o cambiar estilo botón
+      })
+      .catch(err => console.error(err));
+    });
+  });
   document.addEventListener("DOMContentLoaded", function () {
     const botones = document.querySelectorAll(".btn-agregar-carrito");
     botones.forEach(boton => {

@@ -48,6 +48,10 @@ class Producto(models.Model):
         return f"{self.nombre} ({self.codigo})"
 
     @property
+    def total_likes(self):
+        return self.likes.count()
+
+    @property
     def url_absoluta(self):
         return self.get_absolute_url()
 
@@ -71,3 +75,10 @@ class Pedido(models.Model):
         return f'Pedido de {self.producto} por {self.comprador}'
 
 
+class Like(models.Model):
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE, related_name='likes')
+    session_key = models.CharField(max_length=40)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('producto', 'session_key')

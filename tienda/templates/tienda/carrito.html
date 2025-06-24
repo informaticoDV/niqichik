@@ -59,11 +59,11 @@
               <tr>
                 <th class="d-none d-md-table-cell">Código</th>
                 <th>Imagen</th>
-                <th>Nombre</th>
-                <th class="d-none d-sm-table-cell">Precio</th>
+                <th class="d-none d-sm-table-cell">Nombre</th>
+                <th>Precio</th>
                 <th>Cant.</th>
                 <th class="d-none d-sm-table-cell">Total</th>
-                <th class="d-none d-md-table-cell">Acción</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -73,13 +73,13 @@
                   <td>
                     <img src="{{ item.imagen }}" width="50" class="rounded img-fluid">
                   </td>
-                  <td>{{ item.nombre }}</td>
-                  <td class="d-none d-sm-table-cell">{{ item.precio|formato_chileno }}</td>
+                  <td class="d-none d-sm-table-cell">{{ item.nombre }}</td>
+                  <td>{{ item.precio|formato_chileno }}</td>
                   <td>{{ item.cantidad }}</td>
                   <td class="d-none d-sm-table-cell">
                     {{ item.cantidad|multiply:item.precio|formato_chileno }}
                   </td>
-                  <td class="d-none d-md-table-cell">
+                  <td>
                     <a href="{% url 'eliminar_del_carrito' key %}" class="btn btn-sm btn-burdeo-outline" title="Eliminar">
                       <i class="bi bi-trash"></i>
                     </a>

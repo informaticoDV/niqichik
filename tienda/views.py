@@ -387,3 +387,27 @@ def obtener_total_carrito(request):
     carrito = request.session.get("carrito", {})
     total_items = sum(item["cantidad"] for item in carrito.values())
     return JsonResponse({"total": total_items})
+
+from django.http import JsonResponse
+from .models import Producto, Like
+
+def toggle_like(request, producto_id):
+    session_key = request.session.session_key
+    if not session_key:
+        request.session.create()
+        session_key = request.session.session_key
+
+    producto = Producto.objects.get(id=producto_id)
+    like, created = Like.objects.get_or_create(producto=producto, session_key=session_key)
+
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+
+    return JsonResponse({
+        'liked': liked,
+        'total_likes': producto.likes.count()
+    })
+
