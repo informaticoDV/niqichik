@@ -37,3 +37,7 @@ def multiply(value, arg):
         return float(value) * float(arg)
     except (ValueError, TypeError):
         return 0
+
+@register.filter
+def attr(obj, attr_name):
+    return getattr(obj, attr_name)

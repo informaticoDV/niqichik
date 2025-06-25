@@ -1,10 +1,12 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
 {% load custom_filters %}
 
-<div class="contenido">
-<div class="container mt-12">
-  <h1 class="titulo-scriptify2"> Categorias </h1>
+{% block title %}NiqiChik - Categorías{% endblock %}
+{% block content %}
+<div class="container">
+
+    <h2 class="text-center mb-4 carrito-titulo"> Categorias</h2>
 
     <div class="mb-3">
       <a class="btn btn-success" href="{% url 'agregar_categoria' %}">
@@ -22,10 +24,36 @@
                 <p class="card-text">{{ a.descripcion|default:"(Sin descripción)" }}</p>
               </div>
               <div class="card-footer bg-transparent border-top-0">
-                <form method="POST" action="{% url 'eliminar_categoria' a.id %}" onsubmit="return confirmarEliminacion();">
-                  {% csrf_token %}
-                  <button class="btn btn-outline-danger w-100">Eliminar</button>
-                </form>
+                <!-- Botón que abre el modal -->
+                <button type="button"
+                        class="btn btn-outline-danger w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalEliminarCategoria{{ a.id }}">
+                  Eliminar
+                </button>
+
+                <!-- Modal de confirmación -->
+                <div class="modal fade" id="modalEliminarCategoria{{ a.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Confirmar eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                        ¿Estás seguro que deseas eliminar la categoría <strong>{{ a.nombre }}</strong>?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form method="POST" action="{% url 'eliminar_categoria' a.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -38,11 +66,10 @@
     {% endif %}
   </div>
 </div>
-
+{% endblock %}
+{% block extra_js %}
 <script>
-  function confirmarEliminacion() {
-    return confirm("¿Estás seguro que deseas eliminar esta categoría?");
-  }
+  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
 </script>
-
-{% include "tienda/Footer.html" %}
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}

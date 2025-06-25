@@ -1,62 +1,13 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
 {% load custom_filters %}
 
-<style>
-  .carrito-titulo {
-    color: #880e4f;
-    font-weight: bold;
-  }
+{% block title %}NiqiChik - Productos{% endblock %}
 
-  .tabla-carrito thead {
-    background-color: #880e4f;
-    color: white;
-  }
-
-  .tabla-carrito tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-  }
-
-  .btn-burdeo {
-    background-color: #880e4f;
-    border: none;
-    color: white;
-    transition: all 0.2s ease;
-  }
-
-  .btn-burdeo:hover {
-    background-color: #a2185b;
-    color: white;
-  }
-
-  .total-carrito {
-    font-size: 1.2rem;
-    color: #880e4f;
-    font-weight: bold;
-  }
-
-  .btn-burdeo-outline {
-    color: #880e4f;
-    border: 1px solid #880e4f;
-    background-color: transparent;
-    transition: all 0.2s ease;
-  }
-
-  .btn-burdeo-outline:hover {
-    background-color: #880e4f;
-    color: white;
-  }
-</style>
-<body>
-<div class="contenido">
+{% block content %}
     <h2 class="text-center mt-4 carrito-titulo">500 - Error del servidor</h2>
     <p style="text-align: center; padding: 40px;">Quizás quieras volver al inicio y seguir explorando.</p>
-    <div class="text-center">
-      <a href="{% url 'home' %}" class="btn btn-sm btn-burdeo mt-3">← Ir a inicio</a>
-    </div>
-
+<div class="text-center">
+<a href="{% url 'home' %}" class="btn btn-sm btn-burdeo mt-3">← Ir a inicio</a>
 </div>
-
-</body>
-
-{% include "tienda/Footer.html" %}
+{% endblock %}

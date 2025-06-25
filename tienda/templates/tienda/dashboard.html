@@ -1,12 +1,15 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
 {% load custom_filters %}
 
-<body>
-  <div class="contenido py-4">
-    <div class="container">
+{% block title %}NiqiChik - Información{% endblock %}
 
-      <h1 class="text mb-4 titulo-scriptify2">Información</h1>
+{% block content %}
+
+<div class="container">
+
+    <h2 class="text-center mb-4 carrito-titulo"> Información</h2>
+
 
       <div class="d-flex justify-content-center">
         <div class="card shadow border-0" style="max-width: 22rem;">
@@ -20,7 +23,7 @@
         </div>
       </div>
 
-    </div>
+
 
     <div class="text-center my-3">
   <form method="POST" action="{% url 'guardar_informacion' %}">
@@ -32,31 +35,36 @@
 </div>
 
     {% if historial %}
-<div class="mt-5">
-  <h4 class="text-center mb-3">Historial de Ganancias Guardadas</h4>
-  <div class="table-responsive">
-    <table class="table table-sm table-bordered table-hover text-center">
-      <thead class="table-light">
-        <tr>
-          <th>Fecha</th>
-          <th>Monto</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for registro in historial %}
-        <tr>
-          <td>{{ registro.fecha_venta|date:"d/m/Y H:i" }}</td>
-          <td>{{ registro.precio|formato_chileno }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    <div class="mt-5">
+      <h4 class="text-center mb-3">Historial de Ganancias Guardadas</h4>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered table-hover text-center">
+          <thead class="table-light">
+            <tr>
+              <th>Fecha</th>
+              <th>Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for registro in historial %}
+            <tr>
+              <td>{{ registro.fecha_venta|date:"d/m/Y H:i" }}</td>
+              <td>{{ registro.precio|formato_chileno }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
+</script>
+<script src="{% static 'js/carrito.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
 
-</div>
-</div>
-</div>
-{% include "tienda/Footer.html" %}
-</body>
+

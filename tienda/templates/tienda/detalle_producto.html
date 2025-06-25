@@ -1,21 +1,11 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
 {% load custom_filters %}
 
-<body>
-<div class="contenido">
-  <br>
-  <div class="container">
-    <form method="GET" class="mb-4">
-      <div class="input-group">
-        <input type="text" name="q" class="form-control" placeholder="Buscar productos..." value="{{ query }}">
-        <button type="submit" class="btn btn-primary">
-          <i class="bi bi-search"></i>
-        </button>
-      </div>
-    </form>
-
-    <div class="row justify-content-center">
+{% block title %}NiqiChik - Detalle {% endblock %}
+{% block content %}
+<div class="container">
+      <div class="row justify-content-center">
       <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
         <div class="card h-100 shadow-sm">
 
@@ -54,29 +44,45 @@
               <span class="visually-hidden">Siguiente</span>
             </button>
           </div>
-
-          <div class="card-body text-center">
-            <h5 class="card-title">{{ producto.nombre }}</h5>
-          </div>
-
+          <button type="button"
+                class="btn btn-sm btn-outline-danger btn-like"
+                data-producto-id="{{ producto.id }}"
+                style="background-color: #f8c8dc; border-color: #880e4f; color: #880e4f; transition: all 0.3s ease;">
+          ❤️ <span class="like-count">Me gusta</span>
+               <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+          </button>
           <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <i class="bi bi-tags"></i> {{ producto.categoria }}
+            </li>
             <li class="list-group-item">
               <i class="bi bi-card-text"></i> {{ producto.descripcion }}
             </li>
             <li class="list-group-item">
-              <strong>{{ producto.precio|formato_chileno }}</strong>
+                <strong>{{ producto.precio|formato_chileno }}</strong></td>
             </li>
             <li class="list-group-item">
               {% if not producto.estado %}
                 <div class="d-flex align-items-center justify-content-center text-danger">
-                  <div class="spinner-grow spinner-grow-sm me-2"></div> Agotado
+                  <div class="bi bi-circle-fill me-2"></div> Agotado
                 </div>
               {% else %}
                 <div class="d-flex align-items-center justify-content-center text-success">
-                  <div class="spinner-grow spinner-grow-sm me-2"></div> Disponible
+                  <i class="bi bi-circle-fill me-2"></i> Disponible
                 </div>
+
               {% endif %}
             </li>
+
+            <button type="button"
+                    class="btn btn-sm btn-agregar-carrito"
+                    data-producto-id="{{ producto.id }}"
+
+                    {% if not producto.estado %}disabled style="opacity: 0.6; cursor: not-allowed;"{% endif %}>
+              <i class="bi bi-cart-plus"></i> Añadir
+            </button>
+
+
 
             <div class="card-footer text-center">
               <a href="https://api.whatsapp.com/send?text={{ '✨ ¡Mira este producto de Niqi-Chik! ✨🛍️ ' | add:'https://www.niqichik.com/producto/' | add:producto.slug | urlencode }}"
@@ -84,14 +90,15 @@
                  target="_blank"
                  style="background-color: #880e4f; border-color: #880e4f; color: white; transition: all 0.3s ease;">
                  <i class="bi bi-whatsapp fs-7"></i> Compartir
+
               </a>
+
             </div>
           </ul>
         </div>
       </div>
     </div>
   </div>
-
 
 
   <!-- Modal de imagen ampliada con navegación -->
@@ -113,45 +120,19 @@
         </div>
       </div>
     </div>
+  <div id="alerta-carrito" class="alert alert-success text-center" style="display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); z-index: 1050;">
+  Producto añadido al carrito.
   </div>
 
-  <!-- Scripts -->
-   <script>
-    const imagenModal = document.getElementById('imagenModal');
-    const imagenModalSrc = document.getElementById('imagenModalSrc');
-    const prevBtn = document.getElementById('prevImage');
-    const nextBtn = document.getElementById('nextImage');
-
-    let currentImageIndex = 0;
-    let imageUrls = [];
-
-    // Captura todas las imágenes clickeables
-    const allImgElements = document.querySelectorAll('.img-clickable');
-    allImgElements.forEach(img => {
-      imageUrls.push(img.getAttribute('data-img-url'));
-    });
-
-    // Mostrar imagen en el modal
-    imagenModal.addEventListener('show.bs.modal', function (event) {
-      const trigger = event.relatedTarget;
-      const url = trigger.getAttribute('data-img-url');
-      currentImageIndex = imageUrls.indexOf(url);
-      imagenModalSrc.src = url;
-    });
-
-    // Botón anterior
-    prevBtn.addEventListener('click', () => {
-      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
-      imagenModalSrc.src = imageUrls[currentImageIndex];
-    });
-
-    // Botón siguiente
-    nextBtn.addEventListener('click', () => {
-      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
-      imagenModalSrc.src = imageUrls[currentImageIndex];
-    });
-  </script>
 </div>
-</body>
 
-{% include "tienda/Footer.html" %}
+        <div class="text-center">
+          <a href="{% url 'home' %}" class="btn btn-sm btn-burdeo mt-3">← Ver mas productos</a>
+        </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
+</script>
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}

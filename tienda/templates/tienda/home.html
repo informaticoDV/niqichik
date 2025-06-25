@@ -1,396 +1,248 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
 {% load custom_filters %}
-<style>
-  .btn-rose {
-    background-color: #880e4f;
-    color: white;
-    border-color: #880e4f;
-  }
-  .btn-rose:hover,
-  .btn-rose:focus {
-    background-color: #6d0a3f;
-    border-color: #6d0a3f;
-    color: white;
-  }
 
-  .btn-outline-rose {
-    color: #880e4f;
-    border-color: #880e4f;
-    background-color: transparent;
-  }
-  .btn-outline-rose:hover,
-  .btn-outline-rose:focus {
-    color: white;
-    background-color: #880e4f;
-    border-color: #880e4f;
-  }
-</style>
+{% block title %}NiqiChik - Accesorios y más{% endblock %}
 
-<body>
-<div class="contenido">
-  <br>
-  <div class="container">
-    <form method="GET" class="mb-4">
-      <div class="input-group rounded-pill shadow-sm overflow-hidden">
-        <input type="text" name="q" class="form-control border-0" placeholder="Buscar productos..." value="{{ query }}">
-        <button type="submit" class="btn-rose px-4">
-          <i class="bi bi-search"></i>
-        </button>
-      </div>
-      {% if disponible == '1' %}
-      <input type="hidden" name="disponible" value="1">
-      {% endif %}
-    </form>
-    <!-- Filtros -->
-    <div class="mb-4 d-flex flex-wrap gap-2 justify-content-center align-items-center text-sm" style="font-size: 0.85rem;">
-      <!-- Botón Disponible -->
-      <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_id %}categoria={{ categoria_id }}&{% endif %}{% if disponible != '1' %}disponible=1{% endif %}"
-         class="btn {% if disponible|stringformat:'s' == '1' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
-        Disponible
-      </a>
-      <!-- Botón Todas las categorías -->
-      <a href="?{% if query %}q={{ query }}&{% endif %}{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
-         class="btn {% if not categoria_id %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
-        Todas las categorías
-      </a>
-      <!-- Botones categorías -->
-      {% for cat in categorias %}
-      <a href="?{% if query %}q={{ query }}&{% endif %}categoria={{ cat.id }}&{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
-         class="btn {% if categoria_id == cat.id|stringformat:'s' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
-        {{ cat.nombre }}
-      </a>
-      {% endfor %}
+{% block content %}
+<div class="container">
+  <form method="GET" class="mb-4">
+    <div class="input-group rounded-pill shadow-sm overflow-hidden">
+      <input type="text" name="q" class="form-control border-0" placeholder="Buscar productos..." value="{{ query }}">
+      <button type="submit" class="btn-rose px-4">
+        <i class="bi bi-search"></i>
+      </button>
     </div>
-
-
-
-
-
+    {% if disponible == '1' %}
+    <input type="hidden" name="disponible" value="1">
+    {% endif %}
+  </form>
+  <!-- Filtros -->
+  <div class="mb-4 d-flex flex-wrap gap-2 justify-content-center align-items-center text-sm" style="font-size: 0.85rem;">
+    <!-- Botón Disponible -->
+    <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_id %}categoria={{ categoria_id }}&{% endif %}{% if disponible != '1' %}disponible=1{% endif %}"
+       class="btn {% if disponible|stringformat:'s' == '1' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+      Disponible
+    </a>
+    <!-- Botón Todas las categorías -->
+    <a href="?{% if query %}q={{ query }}&{% endif %}{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
+       class="btn {% if not categoria_id %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+      Todas las categorías
+    </a>
+    <!-- Botones categorías -->
+    {% for cat in categorias %}
+    <a href="?{% if query %}q={{ query }}&{% endif %}categoria={{ cat.id }}&{% if disponible|stringformat:'s' == '1' %}disponible=1{% endif %}"
+       class="btn {% if categoria_id == cat.id|stringformat:'s' %}btn-rose{% else %}btn-outline-rose{% endif %} rounded-pill">
+      {{ cat.nombre }}
+    </a>
+    {% endfor %}
+  </div>
 
 {% if messages %}
-  <div class="container mt-3">
-    {% for message in messages %}
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-      </div>
-    {% endfor %}
-  </div>
+<div class="container mt-3">
+  {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+  {% endfor %}
+</div>
 {% endif %}
 
-    <div class="row justify-content-center">
-      {% for producto in page_obj %}
-      <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
-        <div class="card h-100 shadow-sm">
+  <div class="row justify-content-center">
+    {% for producto in page_obj %}
+    <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
+      <div class="card h-100 shadow-sm">
 
-          <!-- Carrusel de imágenes -->
-          <div id="carousel-{{ producto.id }}" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-              {% if producto.imagen %}
-              <div class="carousel-item active">
-                <img src="{{ producto.imagen.url }}"
-                     class="d-block w-100 img-fluid p-2 img-clickable"
-                     style="object-fit: contain; height: 200px; cursor: pointer;"
-                     alt="{{ producto.nombre }}"
-                     data-bs-toggle="modal"
-                     data-bs-target="#imagenModal"
-                     data-img-url="{{ producto.imagen.url }}">
-              </div>
-              {% endif %}
-              {% if producto.imagen2 %}
-              <div class="carousel-item {% if not producto.imagen %}active{% endif %}">
-                <img src="{{ producto.imagen2.url }}"
-                     class="d-block w-100 img-fluid p-2 img-clickable"
-                     style="object-fit: contain; height: 200px; cursor: pointer;"
-                     alt="{{ producto.nombre }}"
-                     data-bs-toggle="modal"
-                     data-bs-target="#imagenModal"
-                     data-img-url="{{ producto.imagen2.url }}">
-              </div>
-              {% endif %}
+        <!-- Carrusel de imágenes -->
+        <div id="carousel-{{ producto.id }}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% if producto.imagen %}
+            <div class="carousel-item active">
+              <img src="{{ producto.imagen.url }}"
+                   class="d-block w-100 img-fluid p-2 img-clickable"
+                   style="object-fit: contain; height: 200px; cursor: pointer;"
+                   alt="{{ producto.nombre }}"
+                   data-bs-toggle="modal"
+                   data-bs-target="#imagenModal"
+                   data-img-url="{{ producto.imagen.url }}">
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ producto.id }}" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Anterior</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ producto.id }}" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Siguiente</span>
-            </button>
+            {% endif %}
+            {% if producto.imagen2 %}
+            <div class="carousel-item {% if not producto.imagen %}active{% endif %}">
+              <img src="{{ producto.imagen2.url }}"
+                   class="d-block w-100 img-fluid p-2 img-clickable"
+                   style="object-fit: contain; height: 200px; cursor: pointer;"
+                   alt="{{ producto.nombre }}"
+                   data-bs-toggle="modal"
+                   data-bs-target="#imagenModal"
+                   data-img-url="{{ producto.imagen2.url }}">
+            </div>
+            {% endif %}
           </div>
-          <button type="button"
-                  class="btn btn-sm btn-outline-danger btn-like"
-                  data-producto-id="{{ producto.id }}"
-                  style="background-color: #f8c8dc; border-color: #880e4f; color: #880e4f; transition: all 0.3s ease;">
-            ❤️ <span class="like-count">Me gusta</span>
-                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ producto.id }}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
           </button>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <i class="bi bi-tags"></i> {{ producto.categoria }}
-            </li>
-            <li class="list-group-item">
-              <i class="bi bi-card-text"></i> {{ producto.descripcion }}
-            </li>
-            <li class="list-group-item">
-                <strong>{{ producto.precio|formato_chileno }}</strong></td>
-            </li>
-            <li class="list-group-item">
-              {% if not producto.estado %}
-                <div class="d-flex align-items-center justify-content-center text-danger">
-                  <div class="bi bi-circle-fill me-2"></div> Agotado
-                </div>
-              {% else %}
-                <div class="d-flex align-items-center justify-content-center text-success">
-                  <i class="bi bi-circle-fill me-2"></i> Disponible
-                </div>
-
-              {% endif %}
-            </li>
-
-            <button type="button"
-                    class="btn btn-sm btn-burdeo btn-agregar-carrito"
-                    data-producto-id="{{ producto.id }}"
-
-                    {% if not producto.estado %}disabled style="opacity: 0.6; cursor: not-allowed;"{% endif %}>
-              <i class="bi bi-cart-plus"></i> Añadir
-            </button>
-
-
-
-            <div class="card-footer text-center">
-              <a href="https://api.whatsapp.com/send?text={{ '✨ ¡Mira este producto de Niqi-Chik! ✨🛍️ ' | add:'https://www.niqichik.com/producto/' | add:producto.slug | urlencode }}"
-                 class="btn rounded-pill shadow d-inline-flex align-items-center gap-2 px-3 py-2 transition"
-                 target="_blank"
-                 style="background-color: #880e4f; border-color: #880e4f; color: white; transition: all 0.3s ease;">
-                 <i class="bi bi-whatsapp fs-7"></i> Compartir
-
-              </a>
-
-            </div>
-
-
-          </ul>
-
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ producto.id }}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+          </button>
         </div>
+        <button type="button"
+                class="btn btn-sm btn-outline-danger btn-like"
+                data-producto-id="{{ producto.id }}"
+                style="background-color: #f8c8dc; border-color: #880e4f; color: #880e4f; transition: all 0.3s ease;">
+          ❤️ <span class="like-count">Me gusta</span>
+               <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+        </button>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <i class="bi bi-tags"></i> {{ producto.categoria }}
+          </li>
+          <li class="list-group-item">
+            <i class="bi bi-card-text"></i> {{ producto.descripcion }}
+          </li>
+          <li class="list-group-item">
+              <strong>{{ producto.precio|formato_chileno }}</strong></td>
+          </li>
+          <li class="list-group-item">
+            {% if not producto.estado %}
+              <div class="d-flex align-items-center justify-content-center text-danger">
+                <div class="bi bi-circle-fill me-2"></div> Agotado
+              </div>
+            {% else %}
+              <div class="d-flex align-items-center justify-content-center text-success">
+                <i class="bi bi-circle-fill me-2"></i> Disponible
+              </div>
+
+            {% endif %}
+          </li>
+
+          <button type="button"
+                  class="btn btn-sm btn-agregar-carrito"
+                  data-producto-id="{{ producto.id }}"
+
+                  {% if not producto.estado %}disabled style="opacity: 0.6; cursor: not-allowed;"{% endif %}>
+            <i class="bi bi-cart-plus"></i> Añadir
+          </button>
+
+
+
+          <div class="card-footer text-center">
+            <a href="https://api.whatsapp.com/send?text={{ '✨ ¡Mira este producto de Niqi-Chik! ✨🛍️ ' | add:'https://www.niqichik.com/producto/' | add:producto.slug | urlencode }}"
+               class="btn rounded-pill shadow d-inline-flex align-items-center gap-2 px-3 py-2 transition"
+               target="_blank"
+               style="background-color: #880e4f; border-color: #880e4f; color: white; transition: all 0.3s ease;">
+               <i class="bi bi-whatsapp fs-7"></i> Compartir
+
+            </a>
+
+          </div>
+
+
+        </ul>
+
       </div>
-      {% endfor %}
     </div>
-  </div>
-
-
-  <!-- Paginación -->
-<nav aria-label="Paginación de productos">
-  <ul class="pagination justify-content-center shadow-sm rounded-4 p-2" style="background-color: #f8f9fa;">
-
-    <!-- Botón anterior -->
-    {% if page_obj.has_previous %}
-      <li class="page-item">
-        <a class="page-link rounded-circle mx-1"
-           style="color: #880e4f;"
-           href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}"
-           aria-label="Anterior">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled">
-        <span class="page-link rounded-circle mx-1" style="color: #880e4f;">&laquo;</span>
-      </li>
-    {% endif %}
-
-    <!-- Números de página -->
-    {% for num in page_range_custom %}
-      {% if page_obj.number == num %}
-        <li class="page-item active">
-          <span class="page-link rounded-circle mx-1"
-                style="background-color: #880e4f; border-color: #880e4f; color: white;">
-            {{ num }}
-          </span>
-        </li>
-      {% else %}
-        <li class="page-item">
-          <a class="page-link rounded-circle mx-1"
-             style="color: #880e4f; border-color: #880e4f;"
-             href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}">
-            {{ num }}
-          </a>
-        </li>
-      {% endif %}
     {% endfor %}
+  </div>
+</div>
 
-    <!-- Botón siguiente -->
-    {% if page_obj.has_next %}
-      <li class="page-item">
-        <a class="page-link rounded-circle mx-1"
-           style="color: #880e4f;"
-           href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}"
-           aria-label="Siguiente">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
+<!-- Paginación -->
+<nav aria-label="Paginación de productos">
+<ul class="pagination justify-content-center shadow-sm rounded-4 p-2" style="background-color: #f8f9fa;">
+
+  <!-- Botón anterior -->
+  {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link rounded-circle mx-1"
+         style="color: #880e4f;"
+         href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}"
+         aria-label="Anterior">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+  {% else %}
+    <li class="page-item disabled">
+      <span class="page-link rounded-circle mx-1" style="color: #880e4f;">&laquo;</span>
+    </li>
+  {% endif %}
+
+  <!-- Números de página -->
+  {% for num in page_range_custom %}
+    {% if page_obj.number == num %}
+      <li class="page-item active">
+        <span class="page-link rounded-circle mx-1"
+              style="background-color: #880e4f; border-color: #880e4f; color: white;">
+          {{ num }}
+        </span>
       </li>
     {% else %}
-      <li class="page-item disabled">
-        <span class="page-link rounded-circle mx-1" style="color: #880e4f;">&raquo;</span>
+      <li class="page-item">
+        <a class="page-link rounded-circle mx-1"
+           style="color: #880e4f; border-color: #880e4f;"
+           href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}">
+          {{ num }}
+        </a>
       </li>
     {% endif %}
+  {% endfor %}
 
-  </ul>
+  <!-- Botón siguiente -->
+  {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link rounded-circle mx-1"
+         style="color: #880e4f;"
+         href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}{% if disponible == '1' %}&disponible=1{% endif %}"
+         aria-label="Siguiente">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  {% else %}
+    <li class="page-item disabled">
+      <span class="page-link rounded-circle mx-1" style="color: #880e4f;">&raquo;</span>
+    </li>
+  {% endif %}
+
+</ul>
 </nav>
 
 
-
-
-
- <!-- Modal de imagen ampliada con navegación -->
-  <div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content position-relative">
-        <div class="modal-body p-0 text-center">
-          <img id="imagenModalSrc" src="" class="img-fluid w-100 rounded" alt="Imagen ampliada">
-          <!-- Botones navegación -->
-          <button id="prevImage" class="btn btn-dark position-absolute top-50 start-0 translate-middle-y" style="z-index: 1051;">
-            <i class="bi bi-chevron-left"></i>
-          </button>
-          <button id="nextImage" class="btn btn-dark position-absolute top-50 end-0 translate-middle-y" style="z-index: 1051;">
-            <i class="bi bi-chevron-right"></i>
-          </button>
-        </div>
-        <div class="modal-footer py-2">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
-        </div>
+<!-- Modal de imagen ampliada con navegación -->
+<div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content position-relative">
+      <div class="modal-body p-0 text-center">
+        <img id="imagenModalSrc" src="" class="img-fluid w-100 rounded" alt="Imagen ampliada">
+        <!-- Botones navegación -->
+        <button id="prevImage" class="btn btn-dark position-absolute top-50 start-0 translate-middle-y" style="z-index: 1051;">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button id="nextImage" class="btn btn-dark position-absolute top-50 end-0 translate-middle-y" style="z-index: 1051;">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
-
-
+</div>
 <div id="alerta-carrito" class="alert alert-success text-center" style="display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); z-index: 1050;">
-  Producto añadido al carrito.
+Producto añadido al carrito.
 </div>
-
+{% endblock %}
+{% block extra_js %}
 <script>
-
-  document.querySelectorAll('.btn-like').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const productoId = this.dataset.productoId;
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-      fetch(`/like/${productoId}/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': csrfToken,
-          'Accept': 'application/json'
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const likeCountSpan = this.querySelector('.like-count');
-        likeCountSpan.textContent = data.liked ? ' ' : 'Me gusta';
-        // Opcional: actualizar contador numérico o cambiar estilo botón
-      })
-      .catch(err => console.error(err));
-    });
-  });
-  document.addEventListener("DOMContentLoaded", function () {
-    const botones = document.querySelectorAll(".btn-agregar-carrito");
-    botones.forEach(boton => {
-      boton.addEventListener("click", function () {
-        const productoId = this.getAttribute("data-producto-id");
-
-        fetch("{% url 'ajax_agregar_al_carrito' %}", {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: `producto_id=${productoId}`
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.ok) {
-            mostrarAlerta(`✔ ${data.nombre} añadido al carrito`);
-            actualizarContadorCarrito();
-          }
-        });
-      });
-    });
-
-    // Cargar contador al iniciar
-    actualizarContadorCarrito();
-
-    function mostrarAlerta(mensaje) {
-      const alerta = document.getElementById("alerta-carrito");
-      alerta.innerHTML = `
-        ${mensaje} <br>
-        <a href="{% url 'ver_carrito' %}" class="btn btn-sm btn-light mt-2">🛒 Ver carrito</a>
-      `;
-      alerta.style.display = "block";
-      setTimeout(() => {
-        alerta.style.display = "none";
-        alerta.innerHTML = "";
-      }, 3000);
-    }
-
-    function actualizarContadorCarrito() {
-      fetch("{% url 'obtener_total_carrito' %}")
-        .then(response => response.json())
-        .then(data => {
-          const contador = document.getElementById("contador-carrito");
-          if (contador) {
-            contador.textContent = data.total;
-          }
-        });
-    }
-
-    // Eliminar producto con confirmación y actualización del contador
-    const eliminarLinks = document.querySelectorAll(".btn-eliminar-carrito");
-    eliminarLinks.forEach(link => {
-      link.addEventListener("click", function (e) {
-        if (!confirm("¿Estás seguro que deseas eliminar este producto?")) {
-          e.preventDefault();
-        } else {
-          setTimeout(() => actualizarContadorCarrito(), 500);
-        }
-      });
-    });
-
-    // Modal de imágenes
-    const imagenModal = document.getElementById('imagenModal');
-    const imagenModalSrc = document.getElementById('imagenModalSrc');
-    const prevBtn = document.getElementById('prevImage');
-    const nextBtn = document.getElementById('nextImage');
-
-    let currentImageIndex = 0;
-    let imageUrls = [];
-
-    const allImgElements = document.querySelectorAll('.img-clickable');
-    allImgElements.forEach(img => {
-      imageUrls.push(img.getAttribute('data-img-url'));
-    });
-
-    imagenModal.addEventListener('show.bs.modal', function (event) {
-      const trigger = event.relatedTarget;
-      const url = trigger.getAttribute('data-img-url');
-      currentImageIndex = imageUrls.indexOf(url);
-      imagenModalSrc.src = url;
-    });
-
-    prevBtn.addEventListener('click', () => {
-      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
-      imagenModalSrc.src = imageUrls[currentImageIndex];
-    });
-
-    nextBtn.addEventListener('click', () => {
-      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
-      imagenModalSrc.src = imageUrls[currentImageIndex];
-    });
-  });
+  const URL_AGREGAR_CARRITO = "{% url 'ajax_agregar_al_carrito' %}";
+  const URL_VER_CARRITO = "{% url 'ver_carrito' %}";
+  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
 </script>
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
 
-</div>
 
-</body>
 
-{% include "tienda/Footer.html" %}

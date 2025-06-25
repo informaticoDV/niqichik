@@ -1,56 +1,12 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
 {% load custom_filters %}
 
-<style>
-  .carrito-titulo {
-    color: #880e4f;
-    font-weight: bold;
-  }
+{% block title %}NiqiChik - 🛒 Carrito{% endblock %}
+{% block content %}
+<div class="container">
 
-  .tabla-carrito thead {
-    background-color: #880e4f;
-    color: white;
-  }
-
-  .tabla-carrito tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-  }
-
-  .btn-burdeo {
-    background-color: #880e4f;
-    border: none;
-    color: white;
-    transition: all 0.2s ease;
-  }
-
-  .btn-burdeo:hover {
-    background-color: #a2185b;
-    color: white;
-  }
-
-  .total-carrito {
-    font-size: 1.2rem;
-    color: #880e4f;
-    font-weight: bold;
-  }
-
-  .btn-burdeo-outline {
-    color: #880e4f;
-    border: 1px solid #880e4f;
-    background-color: transparent;
-    transition: all 0.2s ease;
-  }
-
-  .btn-burdeo-outline:hover {
-    background-color: #880e4f;
-    color: white;
-  }
-</style>
-
-<body>
-<div class="contenido">
-    <h2 class="text-center mt-4 carrito-titulo">🛒 Tu Carrito</h2>
+    <h2 class="text-center mb-4 carrito-titulo">🛒 Tu Carrito</h2>
     <div class="container mt-3">
       {% if carrito %}
         <div class="table-responsive">
@@ -80,9 +36,38 @@
                     {{ item.cantidad|multiply:item.precio|formato_chileno }}
                   </td>
                   <td>
-                    <a href="{% url 'eliminar_del_carrito' key %}" class="btn btn-sm btn-burdeo-outline" title="Eliminar">
-                      <i class="bi bi-trash"></i>
-                    </a>
+                    <!-- Botón que abre el modal de confirmación -->
+                    <button type="button"
+                            class="btn btn-outline-danger btn-sm w-100 mb-2"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminarProductoCarrito{{ key }}">
+                      Eliminar
+                    </button>
+
+                    <!-- Modal de confirmación -->
+                    <div class="modal fade" id="modalEliminarProductoCarrito{{ key }}" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Confirmar eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                          </div>
+                          <div class="modal-body">
+                            ¿Estás seguro que deseas eliminar el <strong>{{ item.nombre }}</strong> del carrito?
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <form method="POST" action="{% url 'eliminar_del_carrito' key %}">
+                              {% csrf_token %}
+                              <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
+                              <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
                   </td>
                 </tr>
               {% endfor %}
@@ -108,103 +93,17 @@
       {% endif %}
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const botones = document.querySelectorAll(".btn-agregar-carrito");
-    botones.forEach(boton => {
-      boton.addEventListener("click", function () {
-        const productoId = this.getAttribute("data-producto-id");
-
-        fetch("{% url 'ajax_agregar_al_carrito' %}", {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: `producto_id=${productoId}`
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.ok) {
-            mostrarAlerta(`✔ ${data.nombre} añadido al carrito`);
-            actualizarContadorCarrito();
-          }
-        });
-      });
-    });
-
-    // Cargar contador al iniciar
-    actualizarContadorCarrito();
-
-    function mostrarAlerta(mensaje) {
-      const alerta = document.getElementById("alerta-carrito");
-      alerta.innerHTML = `
-        ${mensaje} <br>
-        <a href="{% url 'ver_carrito' %}" class="btn btn-sm btn-light mt-2">🛒 Ver carrito</a>
-      `;
-      alerta.style.display = "block";
-      setTimeout(() => {
-        alerta.style.display = "none";
-        alerta.innerHTML = "";
-      }, 3000);
-    }
-
-    function actualizarContadorCarrito() {
-      fetch("{% url 'obtener_total_carrito' %}")
-        .then(response => response.json())
-        .then(data => {
-          const contador = document.getElementById("contador-carrito");
-          if (contador) {
-            contador.textContent = data.total;
-          }
-        });
-    }
-
-    // Eliminar producto con confirmación y actualización del contador
-    const eliminarLinks = document.querySelectorAll(".btn-eliminar-carrito");
-    eliminarLinks.forEach(link => {
-      link.addEventListener("click", function (e) {
-        if (!confirm("¿Estás seguro que deseas eliminar este producto?")) {
-          e.preventDefault();
-        } else {
-          setTimeout(() => actualizarContadorCarrito(), 500);
-        }
-      });
-    });
-
-    // Modal de imágenes
-    const imagenModal = document.getElementById('imagenModal');
-    const imagenModalSrc = document.getElementById('imagenModalSrc');
-    const prevBtn = document.getElementById('prevImage');
-    const nextBtn = document.getElementById('nextImage');
-
-    let currentImageIndex = 0;
-    let imageUrls = [];
-
-    const allImgElements = document.querySelectorAll('.img-clickable');
-    allImgElements.forEach(img => {
-      imageUrls.push(img.getAttribute('data-img-url'));
-    });
-
-    imagenModal.addEventListener('show.bs.modal', function (event) {
-      const trigger = event.relatedTarget;
-      const url = trigger.getAttribute('data-img-url');
-      currentImageIndex = imageUrls.indexOf(url);
-      imagenModalSrc.src = url;
-    });
-
-    prevBtn.addEventListener('click', () => {
-      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
-      imagenModalSrc.src = imageUrls[currentImageIndex];
-    });
-
-    nextBtn.addEventListener('click', () => {
-      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
-      imagenModalSrc.src = imageUrls[currentImageIndex];
-    });
-  });
+  const URL_AGREGAR_CARRITO = "{% url 'ajax_agregar_al_carrito' %}";
+  const URL_VER_CARRITO = "{% url 'ver_carrito' %}";
+  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
 </script>
+<script src="{% static 'js/carrito.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
 
-</body>
 
-{% include "tienda/Footer.html" %}
+

@@ -179,23 +179,24 @@ def editar_campo_producto(request, producto_id, campo):
         form = CampoForm(request.POST, request.FILES, instance=producto)
         if form.is_valid():
             form.save()
-            # Retornar el fragmento del modal con success=True
-            html_form = render_to_string('tienda/editar_campo_modal.html', {
-                'form': form,
+            # 🔁 Solo devolvemos el nuevo valor a reemplazar en pantalla
+            return render(request, 'tienda/fragmento_valor_campo.html', {
                 'producto': producto,
                 'campo': campo,
-                'success': True,
-            }, request=request)
-            return HttpResponse(status=204)  # ✅ Esto es clave
+            })
 
     else:
         form = CampoForm(instance=producto)
 
-    return render(request, 'tienda/editar_formulario_campo.html', {
+    return render(request, 'tienda/editar_campo_modal.html', {
         'form': form,
         'producto': producto,
         'campo': campo,
+        'success': False,
     })
+
+
+
 
 @login_required
 def eliminar_producto(request, producto_id):
@@ -203,7 +204,6 @@ def eliminar_producto(request, producto_id):
     if request.method == 'POST':
         producto.delete()
         return redirect('tienda')
-    return render(request, 'tienda/eliminar_confirmacion.html', {'producto': producto})
 
 @login_required
 def categoria(request):
@@ -227,7 +227,6 @@ def eliminar_categoria(request, categoria_id):
     if request.method == 'POST':
         categoria.delete()
         return redirect('categoria')
-    return render(request, 'tienda/eliminar_confirmacion.html', {'categoria': categoria})
 
 @login_required
 def vender_producto(request, producto_id):
@@ -237,6 +236,10 @@ def vender_producto(request, producto_id):
         if producto.stock > 0:
             producto.stock -= 1
             producto.vendidos += 1
+            # Cambiar estado a 0 si stock llega a 0
+            if producto.stock == 0:
+                producto.estado = 0  # o False si es BooleanField
+
             producto.save()
             messages.success(request, "Producto vendido correctamente.")
         else:

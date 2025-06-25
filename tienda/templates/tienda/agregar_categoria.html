@@ -1,12 +1,13 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
 {% load custom_filters %}
 
-<div class="contenido">
-<div class="container mt-12">
-  <h1 class="titulo-scriptify2"> Nueva categoria</h1>
+{% block title %}NiqiChik - Productos{% endblock %}
 
-  <form method="POST" enctype="multipart/form-data" class="card p-4 shadow">
+{% block content %}
+
+<div class="container">
+  <form method="POST" enctype="multipart/form-data" class="mb-4">
     {% csrf_token %}
 
     {% for field in form %}
@@ -26,6 +27,13 @@
     </div>
   </form>
 </div>
-<br>
-</div>
-{% include "tienda/Footer.html" %}
+{% endblock %}
+{% block extra_js %}
+<script>
+  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
+</script>
+<script src="{% static 'js/carrito.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
+
+

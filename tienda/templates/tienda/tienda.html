@@ -1,34 +1,9 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
 {% load custom_filters %}
-<style>
-  .btn-rose {
-    background-color: #880e4f;
-    color: white;
-    border-color: #880e4f;
-  }
-  .btn-rose:hover,
-  .btn-rose:focus {
-    background-color: #6d0a3f;
-    border-color: #6d0a3f;
-    color: white;
-  }
 
-  .btn-outline-rose {
-    color: #880e4f;
-    border-color: #880e4f;
-    background-color: transparent;
-  }
-  .btn-outline-rose:hover,
-  .btn-outline-rose:focus {
-    color: white;
-    background-color: #880e4f;
-    border-color: #880e4f;
-  }
-</style>
-<body>
-<div class="contenido">
-  <br>
+{% block title %}NiqiChik - Mi tienda{% endblock %}
+{% block content %}
   <div class="container">
     {% with query_string="q="|add:query|stringformat:"s"|add:"&categoria="|add:categoria_id|stringformat:"s"|add:"&disponible="|add:disponible|stringformat:"s"|add:"&visible="|add:visible|stringformat:"s" %}
 
@@ -83,6 +58,17 @@
 
     </div>
     {% endwith %}
+
+{% if messages %}
+  <div>
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 
 
     <div class="row justify-content-center">
@@ -156,7 +142,7 @@
                       <button class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div id="modal-body-Categoria" class="modal-body">
-                      <!-- Aquí HTMX cargará: editar_campo_modal.html -->
+                      <!-- Aquí HTMX cargará: editar_formulario_modal.html -->
                     </div>
                   </div>
                 </div>
@@ -196,7 +182,7 @@
                         <button class="btn-close" data-bs-dismiss="modal"></button>
                       </div>
                       <div id="modal-body-Descripcion" class="modal-body">
-                        <!-- Aquí HTMX cargará: editar_campo_modal.html -->
+                        <!-- Aquí HTMX cargará: editar_formulario_modal.html -->
                       </div>
                     </div>
                   </div>
@@ -228,7 +214,7 @@
                       <button class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div id="modal-body-Precio" class="modal-body">
-                      <!-- Aquí HTMX cargará: editar_campo_modal.html -->
+                      <!-- Aquí HTMX cargará: editar_formulario_modal.html -->
                     </div>
                   </div>
                 </div>
@@ -291,11 +277,38 @@
               <tbody>
                 <tr id="producto-{{ producto.id }}">
                   <td>
-                     <form method="POST" action="{% url 'eliminar_producto' producto.id %}" onsubmit="return confirmarEliminacion();">
-                      {% csrf_token %}
-                      <button class="btn btn-outline-danger btn-sm w-100 mb-2">Eliminar</button>
-                    </form>
+                    <!-- Botón que abre el modal de confirmación -->
+                    <button type="button"
+                            class="btn btn-outline-danger btn-sm w-100 mb-2"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminarProducto{{ producto.id }}">
+                      Eliminar
+                    </button>
+
+                    <!-- Modal de confirmación -->
+                    <div class="modal fade" id="modalEliminarProducto{{ producto.id }}" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Confirmar eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                          </div>
+                          <div class="modal-body">
+                            ¿Estás seguro que deseas eliminar el producto <strong>{{ producto.nombre }}</strong>?
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <form method="POST" action="{% url 'eliminar_producto' producto.id %}">
+                              {% csrf_token %}
+                              <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
+                              <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </td>
+
                   <td>
                     <form method="POST" action="{% url 'editar_producto' producto.id %}">
                       {% csrf_token %}
@@ -311,6 +324,7 @@
                         Vender
                       </button>
                     </form>
+
                   </td>
                   <!-- resto del código -->
                 </tr>
@@ -382,9 +396,7 @@
 
       </ul>
     </nav>
-
   {% endwith %}
-
   <!-- Modal de imagen ampliada con navegación -->
   <div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -405,50 +417,12 @@
       </div>
     </div>
   </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
+</script>
+<script src="{% static 'js/home.js' %}"></script>
+<script src="{% static 'js/tienda.js' %}"></script>
+    {% endblock %}
 
-  <!-- Scripts -->
-   <script>
-    function confirmarEliminacion() {
-      return confirm("¿Estás seguro que deseas eliminar este producto?");
-    }
-
-    const imagenModal = document.getElementById('imagenModal');
-    const imagenModalSrc = document.getElementById('imagenModalSrc');
-    const prevBtn = document.getElementById('prevImage');
-    const nextBtn = document.getElementById('nextImage');
-
-    let currentImageIndex = 0;
-    let imageUrls = [];
-
-    // Captura todas las imágenes clickeables
-    const allImgElements = document.querySelectorAll('.img-clickable');
-    allImgElements.forEach(img => {
-      imageUrls.push(img.getAttribute('data-img-url'));
-    });
-
-    // Mostrar imagen en el modal
-    imagenModal.addEventListener('show.bs.modal', function (event) {
-      const trigger = event.relatedTarget;
-      const url = trigger.getAttribute('data-img-url');
-      currentImageIndex = imageUrls.indexOf(url);
-      imagenModalSrc.src = url;
-    });
-
-    // Botón anterior
-    prevBtn.addEventListener('click', () => {
-      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
-      imagenModalSrc.src = imageUrls[currentImageIndex];
-    });
-
-    // Botón siguiente
-    nextBtn.addEventListener('click', () => {
-      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
-      imagenModalSrc.src = imageUrls[currentImageIndex];
-    });
-
-
-  </script>
-</div>
-</body>
-
-{% include "tienda/Footer.html" %}

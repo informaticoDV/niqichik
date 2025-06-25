@@ -1,17 +1,17 @@
 {% if success %}
-  <div class="alert alert-success">Guardado exitosamente</div>
+<script>
+  var modal = bootstrap.Modal.getInstance(document.getElementById("modal{{ campo|capfirst }}"));
+  if (modal) modal.hide();
+</script>
 {% else %}
 <form
   id="form-{{ campo }}-{{ producto.id }}"
   hx-post="{% url 'editar_campo_producto' producto.id campo %}"
-  hx-target="#modal-body-Categoria"
-  hx-swap="none"
-  method="post"
-  enctype="multipart/form-data"
->
-
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar</button>
-  </form>
+  hx-target="#valor-{{ campo }}-{{ producto.id }}"
+  hx-swap="outerHTML"
+  method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-rose">Guardar</button>
+</form>
 {% endif %}

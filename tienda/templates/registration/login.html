@@ -1,41 +1,44 @@
-{% include "tienda/Menu.html" %}
+{% extends 'tienda/base.html' %}
 {% load static %}
+{% load custom_filters %}
 
-<div class="contenido">
-<body class="d-flex flex-column min-vh-40">
-    {% block content %}
-  <main class="flex-grow-1 d-flex justify-content-center align-items-center py-5">
-    <div class="card shadow-sm p-4" style="width: 100%; max-width: 400px;">
-      <h2 class="text-center mb-4">Iniciar Sesión</h2>
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger" role="alert">
-          {% for error in form.non_field_errors %}
-            {{ error }}
-          {% endfor %}
-        </div>
-      {% endif %}
-      <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label for="id_username" class="form-label">Usuario</label>
-          <input type="text" name="username" class="form-control" required id="id_username">
-        </div>
-        <div class="mb-3">
-          <label for="id_password" class="form-label">Contraseña</label>
-          <input type="password" name="password" class="form-control" required id="id_password">
-        </div>
-        <div class="d-grid">
-          <button type="submit" class="btn btn-primary">Entrar</button>
-        </div>
-      </form>
-    </div>
-  </main>
-  {% endblock %}
+{% block title %}NiqiChik - Productos{% endblock %}
 
+{% block content %}
+<div class="container">
+  <h2 class="text-center mb-4 carrito-titulo">Iniciar Sesión</h2>
+
+  <div class="col-md-6 col-lg-4 mx-auto"> <!-- Contenedor más pequeño y centrado -->
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+          {{ error }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="id_username" class="form-label">Usuario</label>
+        <input type="text" name="username" class="form-control form-control-sm" required id="id_username">
+      </div>
+      <div class="mb-3">
+        <label for="id_password" class="form-label">Contraseña</label>
+        <input type="password" name="password" class="form-control form-control-sm" required id="id_password">
+      </div>
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary btn-sm">Entrar</button>
+      </div>
+    </form>
+  </div>
 </div>
-{% include "tienda/Footer.html" %}
-</body>
+{% endblock %}
 
-
-
-
+{% block extra_js %}
+<script>
+  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
+</script>
+<script src="{% static 'js/carrito.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
