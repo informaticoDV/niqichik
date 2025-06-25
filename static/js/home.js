@@ -83,33 +83,37 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Modal de imágenes
-  const imagenModal = document.getElementById('imagenModal');
-  const imagenModalSrc = document.getElementById('imagenModalSrc');
-  const prevBtn = document.getElementById('prevImage');
-  const nextBtn = document.getElementById('nextImage');
+    const imagenModal = document.getElementById('imagenModal');
+    const imagenModalSrc = document.getElementById('imagenModalSrc');
+    const prevBtn = document.getElementById('prevImage');
+    const nextBtn = document.getElementById('nextImage');
 
-  let currentImageIndex = 0;
-  let imageUrls = [];
+    let currentImageIndex = 0;
+    let imageUrls = [];
 
-  const allImgElements = document.querySelectorAll('.img-clickable');
-  allImgElements.forEach(img => {
-    imageUrls.push(img.getAttribute('data-img-url'));
-  });
+    // Captura todas las imágenes clickeables
+    const allImgElements = document.querySelectorAll('.img-clickable');
+    allImgElements.forEach(img => {
+      imageUrls.push(img.getAttribute('data-img-url'));
+    });
 
-  imagenModal.addEventListener('show.bs.modal', function (event) {
-    const trigger = event.relatedTarget;
-    const url = trigger.getAttribute('data-img-url');
-    currentImageIndex = imageUrls.indexOf(url);
-    imagenModalSrc.src = url;
-  });
+    // Mostrar imagen en el modal
+    imagenModal.addEventListener('show.bs.modal', function (event) {
+      const trigger = event.relatedTarget;
+      const url = trigger.getAttribute('data-img-url');
+      currentImageIndex = imageUrls.indexOf(url);
+      imagenModalSrc.src = url;
+    });
 
-  prevBtn.addEventListener('click', () => {
-    currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
-    imagenModalSrc.src = imageUrls[currentImageIndex];
-  });
+    // Botón anterior
+    prevBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
+      imagenModalSrc.src = imageUrls[currentImageIndex];
+    });
 
-  nextBtn.addEventListener('click', () => {
-    currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
-    imagenModalSrc.src = imageUrls[currentImageIndex];
-  });
+    // Botón siguiente
+    nextBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
+      imagenModalSrc.src = imageUrls[currentImageIndex];
+    });
 });

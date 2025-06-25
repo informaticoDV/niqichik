@@ -234,15 +234,6 @@
 Producto añadido al carrito.
 </div>
 {% endblock %}
-{% block extra_js %}
-<script>
-  const URL_AGREGAR_CARRITO = "{% url 'ajax_agregar_al_carrito' %}";
-  const URL_VER_CARRITO = "{% url 'ver_carrito' %}";
-  const URL_TOTAL_CARRITO = "{% url 'obtener_total_carrito' %}";
-  const CSRF_TOKEN = "{{ csrf_token }}";
-</script>
-<script src="{% static 'js/home.js' %}"></script>
-{% endblock %}
 
 
 
