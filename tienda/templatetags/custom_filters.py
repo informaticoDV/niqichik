@@ -43,7 +43,10 @@ def attr(obj, attr_name):
     return getattr(obj, attr_name)
 
 @register.filter
-def to_range(start, end=None):
-    if end is None:
-        return range(1, start + 1)
-    return range(start, end + 1)
+def to_range(start, end):
+    try:
+        start_int = int(start)
+        end_int = int(end)
+        return range(start_int, end_int + 1)
+    except:
+        return range(1)  # fallback vacío

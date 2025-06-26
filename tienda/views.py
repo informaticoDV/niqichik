@@ -342,14 +342,6 @@ def detalle_producto(request, slug):
 from django.shortcuts import redirect
 from django.urls import reverse
 
-def agregar_al_carrito(request, producto_id):
-    carrito = Carrito(request)
-    producto = get_object_or_404(Producto, id=producto_id)
-    carrito.agregar(producto)
-
-    # Redirige a la misma página desde la que vino el usuario
-    messages.success(request, f"{producto.nombre} fue añadido al carrito.")
-    return redirect(request.META.get("HTTP_REFERER", reverse("home")))
 
 def eliminar_del_carrito(request, producto_id):
     carrito = Carrito(request)
@@ -357,30 +349,50 @@ def eliminar_del_carrito(request, producto_id):
     carrito.eliminar(producto)
     return redirect("ver_carrito")
 
+from django.shortcuts import get_object_or_404
+from tienda.models import Producto  # ajusta según tu estructura
+import urllib.parse
+
 def ver_carrito(request):
     carrito = request.session.get("carrito", {})
     texto_compartir = "✨ Mi carrito en Niqi-Chik: ✨\n"
     total = 0
-    for item in carrito.values():
-        codigo = item.get('codigo', '')
-        nombre = item.get('nombre', '')
-        cantidad = int(item.get('cantidad', 0))  # convertir a int
-        precio = float(item.get('precio', 0))    # convertir a float
+    nuevos_items = {}
 
+    for key, item in carrito.items():
+        codigo = item.get('codigo')
+        try:
+            producto = Producto.objects.get(codigo=codigo)
+        except Producto.DoesNotExist:
+            continue  # ignorar si el producto ya no existe
+
+        cantidad = int(item.get('cantidad', 0))
+        precio = float(item.get('precio', 0))
+
+        # Recalcular subtotal y total
         subtotal = cantidad * precio
         total += subtotal
-        texto_compartir += f"• {codigo} || {nombre} x{cantidad} = ${subtotal:.2f}\n"  # formato 2 decimales
+
+        # Armar texto de WhatsApp
+        texto_compartir += f"• {codigo} || {producto.nombre} x{cantidad} = ${subtotal:.2f}\n"
+
+        # Asegurarse de que cada ítem tenga stock actualizado
+        nuevos_items[key] = item
+        nuevos_items[key]['stock'] = producto.stock  # ⚠️ clave para el template
+
+    # Actualizar el carrito en la sesión
+    request.session['carrito'] = nuevos_items
 
     texto_compartir += f"Total: ${total:.2f}"
-
-    import urllib.parse
     texto_compartir_url = urllib.parse.quote(texto_compartir)
 
     return render(request, "tienda/carrito.html", {
-        "carrito": carrito,
+        "carrito": nuevos_items,
         "total": total,
-        'texto_compartir': texto_compartir_url,
+        "texto_compartir": texto_compartir_url,
     })
+
+
 
 from django.http import JsonResponse
 from .carrito import Carrito
@@ -401,16 +413,29 @@ def obtener_total_carrito(request):
     total_items = sum(item["cantidad"] for item in carrito.values())
     return JsonResponse({"total": total_items})
 
-from django.shortcuts import redirect
 
-def actualizar_cantidad(request, producto_id):
-    if request.method == 'POST':
-        nueva_cantidad = int(request.POST.get('cantidad', 1))
-        carrito = request.session.get('carrito', {})
-        if producto_id in carrito:
-            carrito[producto_id]['cantidad'] = nueva_cantidad
-            request.session['carrito'] = carrito
-    return redirect('ver_carrito')  # Ajusta si tu vista se llama distinto
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
+
+@require_POST
+def actualizar_cantidad(request, key):
+    nueva_cantidad = int(request.POST.get("cantidad", 1))
+    carrito = request.session.get("carrito", {})
+
+    if key in carrito:
+        # Verificar contra el stock
+        codigo = carrito[key].get("codigo")
+        try:
+            producto = Producto.objects.get(codigo=codigo)
+            stock_disponible = producto.stock
+            carrito[key]["cantidad"] = min(nueva_cantidad, stock_disponible)
+        except Producto.DoesNotExist:
+            pass
+
+    request.session["carrito"] = carrito
+    return redirect("ver_carrito")  # o el nombre que uses para mostrar el carrito
+
+
 
 
 from django.http import JsonResponse

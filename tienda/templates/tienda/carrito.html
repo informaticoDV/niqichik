@@ -29,11 +29,15 @@
                 <form method="POST" action="{% url 'actualizar_cantidad' key %}" class="d-inline-block">
                   {% csrf_token %}
                   <div class="input-group input-group-sm">
-                    <select name="cantidad" class="form-select rounded-3 shadow-sm border-burdeo" onchange="this.form.submit()">
-                      {% for i in 1|to_range:10 %}
+
+
+                    <select name="cantidad" class="form-select" onchange="this.form.submit()">
+                      {% for i in 1|to_range:item.stock %}
                         <option value="{{ i }}" {% if item.cantidad == i %}selected{% endif %}>{{ i }}</option>
                       {% endfor %}
                     </select>
+
+
                   </div>
                 </form>
               </div>
