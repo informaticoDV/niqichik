@@ -41,3 +41,9 @@ def multiply(value, arg):
 @register.filter
 def attr(obj, attr_name):
     return getattr(obj, attr_name)
+
+@register.filter
+def to_range(start, end=None):
+    if end is None:
+        return range(1, start + 1)
+    return range(start, end + 1)

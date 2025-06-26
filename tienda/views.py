@@ -351,14 +351,11 @@ def agregar_al_carrito(request, producto_id):
     messages.success(request, f"{producto.nombre} fue añadido al carrito.")
     return redirect(request.META.get("HTTP_REFERER", reverse("home")))
 
-
-
 def eliminar_del_carrito(request, producto_id):
     carrito = Carrito(request)
     producto = get_object_or_404(Producto, id=producto_id)
     carrito.eliminar(producto)
     return redirect("ver_carrito")
-
 
 def ver_carrito(request):
     carrito = request.session.get("carrito", {})
@@ -385,9 +382,6 @@ def ver_carrito(request):
         'texto_compartir': texto_compartir_url,
     })
 
-
-
-
 from django.http import JsonResponse
 from .carrito import Carrito
 from .models import Producto
@@ -406,6 +400,18 @@ def obtener_total_carrito(request):
     carrito = request.session.get("carrito", {})
     total_items = sum(item["cantidad"] for item in carrito.values())
     return JsonResponse({"total": total_items})
+
+from django.shortcuts import redirect
+
+def actualizar_cantidad(request, producto_id):
+    if request.method == 'POST':
+        nueva_cantidad = int(request.POST.get('cantidad', 1))
+        carrito = request.session.get('carrito', {})
+        if producto_id in carrito:
+            carrito[producto_id]['cantidad'] = nueva_cantidad
+            request.session['carrito'] = carrito
+    return redirect('ver_carrito')  # Ajusta si tu vista se llama distinto
+
 
 from django.http import JsonResponse
 from .models import Producto, Like

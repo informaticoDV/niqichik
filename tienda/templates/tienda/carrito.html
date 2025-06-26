@@ -5,91 +5,94 @@
 {% block title %}NiqiChik - 🛒 Carrito{% endblock %}
 {% block content %}
 <div class="container">
-
     <h2 class="text-center mb-4 carrito-titulo">🛒 Tu Carrito</h2>
     <div class="container mt-3">
       {% if carrito %}
-        <div class="table-responsive">
-          <table class="table table-bordered table-hover text-center tabla-carrito shadow-sm rounded">
-            <thead>
-              <tr>
-                <th class="d-none d-md-table-cell">Código</th>
-                <th>Imagen</th>
-                <th class="d-none d-sm-table-cell">Nombre</th>
-                <th>Precio</th>
-                <th>Cant.</th>
-                <th class="d-none d-sm-table-cell">Total</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for key, item in carrito.items %}
-                <tr>
-                  <td class="d-none d-md-table-cell">{{ item.codigo }}</td>
-                  <td>
-                    <img src="{{ item.imagen }}" width="50" class="rounded img-fluid">
-                  </td>
-                  <td class="d-none d-sm-table-cell">{{ item.nombre }}</td>
-                  <td>{{ item.precio|formato_chileno }}</td>
-                  <td>{{ item.cantidad }}</td>
-                  <td class="d-none d-sm-table-cell">
-                    {{ item.cantidad|multiply:item.precio|formato_chileno }}
-                  </td>
-                  <td>
-                    <!-- Botón que abre el modal de confirmación -->
-                    <button type="button"
-                            class="btn btn-outline-danger btn-sm w-100 mb-2"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalEliminarProductoCarrito{{ key }}">
-                      Eliminar
-                    </button>
+      {% for key, item in carrito.items %}
+        <div class="col-12 mb-4">
+          <div class="card shadow-sm border-0 rounded-4 p-3">
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+              <!-- Imagen -->
+              <div class="flex-shrink-0">
+                <img src="{{ item.imagen }}" alt="{{ item.nombre }}" class="rounded-3" style="width: 90px; height: 90px; object-fit: cover;">
+              </div>
 
-                    <!-- Modal de confirmación -->
-                    <div class="modal fade" id="modalEliminarProductoCarrito{{ key }}" tabindex="-1" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title">Confirmar eliminación</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                          </div>
-                          <div class="modal-body">
-                            ¿Estás seguro que deseas eliminar el <strong>{{ item.nombre }}</strong> del carrito?
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <form method="POST" action="{% url 'eliminar_del_carrito' key %}">
-                              {% csrf_token %}
-                              <input type="hidden" name="next" value="{{ request.get_full_path }}#producto-{{ producto.id }}">
-                              <button type="submit" class="btn btn-danger">Eliminar</button>
-                            </form>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+              <!-- Nombre y precio -->
+              <div class="flex-grow-1 text-center text-md-start">
+                <h5 class="mb-1 fw-bold">{{ item.nombre }}</h5>
+                <p class="mb-1 text-muted small">Código: {{ item.codigo }}</p>
+                <p class="mb-0 text-burdeo fw-semibold">{{ item.precio|formato_chileno }}</p>
+              </div>
 
+              <!-- Selector de cantidad -->
+              <div class="text-center">
+                <form method="POST" action="{% url 'actualizar_cantidad' key %}" class="d-inline-block">
+                  {% csrf_token %}
+                  <div class="input-group input-group-sm">
+                    <select name="cantidad" class="form-select rounded-3 shadow-sm border-burdeo" onchange="this.form.submit()">
+                      {% for i in 1|to_range:10 %}
+                        <option value="{{ i }}" {% if item.cantidad == i %}selected{% endif %}>{{ i }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </form>
+              </div>
+            </div>
 
-                  </td>
-                </tr>
-              {% endfor %}
-              <tr class="bg-light">
-                <td colspan="4" class="text-end total-carrito">Total:</td>
-                <td colspan="3" class="text-start total-carrito">{{ total|formato_chileno }}</td>
-              </tr>
-            </tbody>
-          </table>
+            <!-- Total y botón eliminar -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <span class="fw-semibold">Total: {{ item.cantidad|multiply:item.precio|formato_chileno }}</span>
+              <button type="button"
+                      class="btn btn-outline-danger btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#modalEliminarProductoCarrito{{ key }}">
+                Eliminar
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal eliminar -->
+          <div class="modal fade" id="modalEliminarProductoCarrito{{ key }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content rounded-4">
+                <div class="modal-header bg-light">
+                  <h5 class="modal-title">Confirmar eliminación</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  ¿Estás seguro que deseas eliminar <strong>{{ item.nombre }}</strong> del carrito?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <form method="POST" action="{% url 'eliminar_del_carrito' key %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
+        <!-- Total del carrito -->
+        <div class="text-end mt-4">
+          <h5 class="fw-bold text-burdeo">Total del carrito: {{ total|formato_chileno }}</h5>
         </div>
 
-        <div class="text-center mt-3">
-          <a href="https://api.whatsapp.com/send?text={{ texto_compartir }}" target="_blank" class="btn btn-success">
-            <i class="bi bi-whatsapp"></i> Compartir carrito por WhatsApp
-          </a>
         </div>
+
+    <div class="text-center mt-3">
+      <a href="https://api.whatsapp.com/send?text={{ texto_compartir }}" target="_blank" class="btn btn-success">
+        <i class="bi bi-whatsapp"></i> Compartir carrito por WhatsApp
+      </a>
+    </div>
 
       {% else %}
-        <p class="text-center text-muted mt-5">Tu carrito está vacío.</p>
-        <div class="text-center">
-          <a href="{% url 'home' %}" class="btn btn-sm btn-burdeo mt-3">← Ir a la tienda</a>
-        </div>
+      <p class="text-center text-muted mt-5">Tu carrito está vacío.</p>
+      <div class="text-center">
+        <a href="{% url 'home' %}" class="btn btn-sm btn-burdeo mt-3">← Ir a la tienda</a>
+      </div>
       <br><br><br><br>
       {% endif %}
     </div>
