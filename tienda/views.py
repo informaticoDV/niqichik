@@ -494,8 +494,7 @@ def crear_venta(request):
 
 @login_required
 def lista_ventas(request):
-    if not request.user:
-        return redirect('home')
+
 
     ventas = Venta.objects.all().order_by('-fecha_creacion')
     return render(request, 'tienda/lista_ventas.html', {'ventas': ventas})
