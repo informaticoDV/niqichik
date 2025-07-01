@@ -494,16 +494,11 @@ def crear_venta(request):
 
 @login_required
 def lista_ventas(request):
-
-
     ventas = Venta.objects.all().order_by('-fecha_creacion')
     return render(request, 'tienda/lista_ventas.html', {'ventas': ventas})
 
 @login_required
 def cambiar_estado_venta(request, venta_id, nuevo_estado):
-    if not request.user:
-        return redirect('home')
-
     venta = get_object_or_404(Venta, id=venta_id)
 
     if nuevo_estado == 'aceptada':
