@@ -494,7 +494,7 @@ def crear_venta(request):
 
 @login_required
 def lista_ventas(request):
-    if not request.user.is_staff:
+    if not request.user:
         return redirect('home')
 
     ventas = Venta.objects.all().order_by('-fecha_creacion')
@@ -502,7 +502,7 @@ def lista_ventas(request):
 
 @login_required
 def cambiar_estado_venta(request, venta_id, nuevo_estado):
-    if not request.user.is_staff:
+    if not request.user:
         return redirect('home')
 
     venta = get_object_or_404(Venta, id=venta_id)
