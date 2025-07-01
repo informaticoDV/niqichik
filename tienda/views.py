@@ -353,6 +353,8 @@ from django.shortcuts import get_object_or_404
 from tienda.models import Producto  # ajusta según tu estructura
 import urllib.parse
 
+import urllib.parse
+
 def ver_carrito(request):
     carrito = request.session.get("carrito", {})
     texto_compartir = "✨ Mi carrito en Niqi-Chik: ✨\n"
@@ -369,28 +371,28 @@ def ver_carrito(request):
         cantidad = int(item.get('cantidad', 0))
         precio = float(item.get('precio', 0))
 
-        # Recalcular subtotal y total
         subtotal = cantidad * precio
         total += subtotal
 
-        # Armar texto de WhatsApp
-        texto_compartir += f"• {codigo} || {producto.nombre} x{cantidad} = ${subtotal:.2f}\n"
+        # Formatear el subtotal con puntos en miles
+        subtotal_formateado = "${:,.0f}".format(subtotal).replace(",", ".")
 
-        # Asegurarse de que cada ítem tenga stock actualizado
+        texto_compartir += f"• {codigo} || {producto.nombre} x{cantidad} = {subtotal_formateado}\n"
+
         nuevos_items[key] = item
-        nuevos_items[key]['stock'] = producto.stock  # ⚠️ clave para el template
+        nuevos_items[key]['stock'] = producto.stock
 
-    # Actualizar el carrito en la sesión
-    request.session['carrito'] = nuevos_items
-
-    texto_compartir += f"Total: ${total:.2f}"
+    # Formatear el total
+    total_formateado = "${:,.0f}".format(total).replace(",", ".")
+    texto_compartir += f"Total: {total_formateado}"
     texto_compartir_url = urllib.parse.quote(texto_compartir)
 
     return render(request, "tienda/carrito.html", {
         "carrito": nuevos_items,
-        "total": total,
+        "total": total_formateado,  # lo mandamos formateado si también lo muestras en el template
         "texto_compartir": texto_compartir_url,
     })
+
 
 
 
@@ -510,7 +512,7 @@ def cambiar_estado_venta(request, venta_id, nuevo_estado):
                 producto.vendidos += detalle.cantidad
                 if producto.stock == 0:
                     producto.estado = False
-                    producto.visible = False
+                    producto.visible = True
                 producto.save()
             else:
                 messages.error(request, f"No hay suficiente stock para {producto.nombre}")
