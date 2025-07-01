@@ -8,7 +8,7 @@ from django.db.models import Q, IntegerField
 from django.db.models.functions import Substr, Length, Cast
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
-from .models import Producto, Categoria
+from .models import Producto, Categoria, Venta, VentaDetalle
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from .forms import ProductoForm
 from .carrito import Carrito
@@ -461,3 +461,68 @@ def toggle_like(request, producto_id):
         'total_likes': producto.likes.count()
     })
 
+
+from django.contrib import messages
+from django.views.decorators.http import require_POST
+
+@require_POST
+def crear_venta(request):
+    comprador_nombre = request.POST.get("comprador_nombre", "Anónimo")
+    comprador_contacto = request.POST.get("comprador_contacto", "")
+    productos_ids = request.POST.getlist("productos")
+    cantidades = request.POST.getlist("cantidades")
+    whatsapp_url = request.POST.get("whatsapp_url")
+
+    venta = Venta.objects.create(
+        comprador_nombre=comprador_nombre,
+        comprador_contacto=comprador_contacto,
+    )
+
+    for pid, cantidad in zip(productos_ids, cantidades):
+        try:
+            producto_id = int(pid)
+            cant = int(cantidad)
+            producto = Producto.objects.filter(id=producto_id).first()
+            if producto and cant > 0:
+                VentaDetalle.objects.create(venta=venta, producto=producto, cantidad=cant)
+        except ValueError:
+            continue
+
+    # Redirige a WhatsApp directamente
+    return redirect(whatsapp_url)
+
+
+@login_required
+def lista_ventas(request):
+    if not request.user.is_staff:
+        return redirect('home')
+
+    ventas = Venta.objects.all().order_by('-fecha_creacion')
+    return render(request, 'tienda/lista_ventas.html', {'ventas': ventas})
+
+@login_required
+def cambiar_estado_venta(request, venta_id, nuevo_estado):
+    if not request.user.is_staff:
+        return redirect('home')
+
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    if nuevo_estado == 'aceptada':
+        # Descontar stock
+        for detalle in venta.detalles.all():
+            producto = detalle.producto
+            if producto.stock >= detalle.cantidad:
+                producto.stock -= detalle.cantidad
+                producto.vendidos += detalle.cantidad
+                if producto.stock == 0:
+                    producto.estado = False
+                    producto.visible = False
+                producto.save()
+            else:
+                messages.error(request, f"No hay suficiente stock para {producto.nombre}")
+                return redirect('lista_ventas')
+
+    venta.estado = nuevo_estado
+    venta.save()
+    messages.success(request, f"Venta {venta.id} actualizada a {nuevo_estado}.")
+    return redirect('lista_ventas')

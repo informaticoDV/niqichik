@@ -8,6 +8,18 @@
   <form method="POST" enctype="multipart/form-data" class="mb-4">
       {% csrf_token %}
 
+      <!-- Nombre -->
+      <div class="mb-3 row">
+        <label class="col-sm-2 col-form-label">Nombre</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control-plaintext" readonly value="{{ producto.nombre }}">
+        </div>
+        <label class="col-sm-2 col-form-label">Nueva Nombre:</label>
+        <div class="col-sm-4">
+          {{ form.nombre|add_class:"form-control" }}
+        </div>
+      </div>
+
       <!-- Categirua -->
       <div class="mb-3 row">
         <label class="col-sm-2 col-form-label">Categoria actual:</label>

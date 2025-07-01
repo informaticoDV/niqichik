@@ -82,3 +82,38 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ('producto', 'session_key')
+
+class NotificacionInteres(models.Model):
+    productos = models.ManyToManyField(Producto)
+    comprador_nombre = models.CharField(max_length=100)
+    comprador_contacto = models.CharField(max_length=100, blank=True, null=True)  # WhatsApp o email
+    fecha = models.DateTimeField(auto_now_add=True)
+    procesado = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Interés de {self.comprador_nombre} el {self.fecha.strftime('%d-%m-%Y %H:%M')}"
+
+class Venta(models.Model):
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('aceptada', 'Aceptada'),
+        ('cancelada', 'Cancelada'),
+    ]
+
+    comprador_nombre = models.CharField(max_length=100)
+    comprador_contacto = models.CharField(max_length=100, blank=True, null=True)  # WhatsApp/email
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
+
+    def __str__(self):
+        return f"Venta #{self.id} - {self.comprador_nombre} ({self.estado})"
+
+
+class VentaDetalle(models.Model):
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre}"
+

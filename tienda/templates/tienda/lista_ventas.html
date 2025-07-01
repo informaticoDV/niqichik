@@ -1,0 +1,59 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %}Ventas Pendientes{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Ventas</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% if ventas %}
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Comprador</th>
+          <th>Contacto</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+          <th>Detalles</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for venta in ventas %}
+        <tr>
+          <td>{{ venta.id }}</td>
+          <td>{{ venta.comprador_nombre }}</td>
+          <td>{{ venta.comprador_contacto|default:"-" }}</td>
+          <td>{{ venta.fecha_creacion|date:"d-m-Y H:i" }}</td>
+          <td>{{ venta.get_estado_display }}</td>
+          <td>
+            <ul>
+              {% for detalle in venta.detalles.all %}
+                <li>{{ detalle.cantidad }} x {{ detalle.producto.nombre }} (Stock: {{ detalle.producto.stock }})</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            {% if venta.estado == 'pendiente' %}
+              <a href="{% url 'cambiar_estado_venta' venta.id 'aceptada' %}" class="btn btn-success btn-sm">Aceptar</a>
+              <a href="{% url 'cambiar_estado_venta' venta.id 'cancelada' %}" class="btn btn-danger btn-sm">Cancelar</a>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No hay ventas registradas.</p>
+  {% endif %}
+</div>
+{% endblock %}

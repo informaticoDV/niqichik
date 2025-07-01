@@ -8,6 +8,7 @@ class ProductoForm(forms.ModelForm):
         model = Producto
         fields = ['nombre', 'categoria', 'precio','stock','descripcion', 'imagen', 'imagen2']  # Asegúrate de incluir todos los que quieres editar
         widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),  # <- CORREGIDO aquí
             'categoria': forms.Select(attrs={'class': 'form-control'}),  # <- CORREGIDO aquí
             'precio': forms.NumberInput(attrs={'class': 'form-control'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -19,8 +20,9 @@ class ProductoForm(forms.ModelForm):
 class EditarProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ['categoria', 'precio', 'stock', 'descripcion', 'imagen', 'imagen2']
+        fields = ['nombre','categoria', 'precio', 'stock', 'descripcion', 'imagen', 'imagen2']
         widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),  # <- CORREGIDO aquí
             'categoria': forms.Select(attrs={'class': 'form-control'}),  # <- CORREGIDO aquí
             'precio': forms.NumberInput(attrs={'class': 'form-control'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),

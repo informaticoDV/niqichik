@@ -87,10 +87,27 @@
         </div>
 
     <div class="text-center mt-3">
-      <a href="https://api.whatsapp.com/send?text={{ texto_compartir }}" target="_blank" class="btn btn-success">
-        <i class="bi bi-whatsapp"></i> Compartir carrito por WhatsApp
-      </a>
+      <form method="POST" action="{% url 'crear_venta' %}" target="_blank">
+        {% csrf_token %}
+        <input type="hidden" name="comprador_nombre" value="{{ user.username|default:'Invitado' }}">
+        <input type="hidden" name="comprador_contacto" value="">
+
+        {% for key, item in carrito.items %}
+          <input type="hidden" name="productos" value="{{ key }}">
+          <input type="hidden" name="cantidades" value="{{ item.cantidad }}">
+        {% endfor %}
+
+        <input type="hidden" name="whatsapp_url" value="https://api.whatsapp.com/send?text={{ texto_compartir }}">
+
+        <div class="text-center mt-3">
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-whatsapp"></i>  Compartir carrito por WhatsApp
+          </button>
+        </div>
+      </form>
     </div>
+
+
 
       {% else %}
       <p class="text-center text-muted mt-5">Tu carrito está vacío.</p>
