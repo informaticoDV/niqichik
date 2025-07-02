@@ -50,10 +50,10 @@ def home(request):
     total_pages = paginator.num_pages
 
     start_page = max(current_page - 2, 1)
-    end_page = start_page + 6
+    end_page = start_page + 4
     if end_page > total_pages:
         end_page = total_pages
-        start_page = max(end_page - 6, 1)
+        start_page = max(end_page - 4, 1)
 
     page_range_custom = range(start_page, end_page + 1)
 
@@ -108,10 +108,10 @@ def tienda(request):
     total_pages = paginator.num_pages
 
     start_page = max(current_page - 2, 1)
-    end_page = start_page + 6
+    end_page = start_page + 4
     if end_page > total_pages:
         end_page = total_pages
-        start_page = max(end_page - 6, 1)
+        start_page = max(end_page - 4, 1)
 
     page_range_custom = range(start_page, end_page + 1)
 
